@@ -30,9 +30,9 @@
         .button-container {
             display: flex;
             flex-direction: column;
-            width: 100%;
-            max-width: 300px;
         }
+        
+        
         .button {
             margin: 0.5rem 0;
             padding: 1rem;
@@ -49,20 +49,7 @@
         .start-button:hover {
             background-color: #1d924e;
         }
-        .options-button {
-            background-color: #3498db;
-            color: white;
-        }
-        .options-button:hover {
-            background-color: #2980b9;
-        }
-        .exit-button {
-            background-color: #e74c3c;
-            color: white;
-        }
-        .exit-button:hover {
-            background-color: #c0392b;
-        }
+       
         @media (min-width: 768px) {
             h1 {
                 font-size: 5rem;

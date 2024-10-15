@@ -10,11 +10,12 @@
     <div class="game-container">
         <img src="images/title1.gif" alt="title" class="title">
         <img src="images/logo.png" alt="logo" class="logo">
-        <div class="button-container">
-            <button class="button start-button" onclick="window.location.href='/lobby'">Iniciar juego</button>
-            <button class="button options-button" onclick="console.log('Opciones')">Opciones</button>
-            <button class="button exit-button" onclick="console.log('Salir')">Salir</button>
-        </div>
+        <form class="name" action="/lobby" method="GET">
+            <div class="button-container">
+                <input type="text" id="nombre" name="nombre" placeholder="Escribe tu nombre" required>
+                <button type="submit" class="button start-button">Iniciar juego</button>
+            </div>
+        </form>
     </div>
 </body>
 </html>
