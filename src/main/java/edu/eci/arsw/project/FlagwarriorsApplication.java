@@ -1,4 +1,4 @@
-package edu.eci.arsw.project.flagwarriorsApi;
+package edu.eci.arsw.project;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
