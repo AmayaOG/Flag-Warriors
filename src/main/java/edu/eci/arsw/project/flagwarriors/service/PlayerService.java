@@ -13,8 +13,8 @@ public class PlayerService {
     @Autowired
     PlayerRepository playerRepository;
 
-    public Player createPlayer(String username, int score) {
-        Player player = new Player();
+    public Player createPlayer(String name, int score) {
+        Player player = new Player(name,score);
         return playerRepository.save(player);
     }
 }

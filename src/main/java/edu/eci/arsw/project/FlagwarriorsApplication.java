@@ -10,5 +10,6 @@ public class FlagwarriorsApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(FlagwarriorsApplication.class, args);
+		
 	}
 }
