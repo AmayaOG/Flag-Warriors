@@ -18,9 +18,8 @@ public class GameControllers {
     private PlayerService playerService;
 
     @RequestMapping(value = "/lobby", method = RequestMethod.GET)
-    public String iniciarJuego(@RequestParam String nombre, Model model) {
-        model.addAttribute("nombre", nombre);
-        playerService.createPlayer(nombre, 100);
+    public String iniciarJuego(){
+        //playerService.createPlayer(nombre,0);
         return "lobby"; 
     }
     @GetMapping("/game")

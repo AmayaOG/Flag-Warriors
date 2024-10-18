@@ -10,5 +10,6 @@ import edu.eci.arsw.project.flagwarriors.model.Player;
 @Repository
 public interface PlayerRepository extends JpaRepository<Player, Long> {
 
-    List<Player> findByName(String name);
+    Player findByName(String name);
+
 }

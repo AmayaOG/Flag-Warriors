@@ -13,9 +13,13 @@ public class PlayerService {
     @Autowired
     PlayerRepository playerRepository;
 
-    public Player createPlayer(String name, int score) {
+    public Player savePlayer(String name, int score) {
         Player player = new Player(name,score);
         return playerRepository.save(player);
+    }
+
+    public Player getPlayerByName(String name){
+        return playerRepository.findByName(name);
     }
 }
 
