@@ -14,12 +14,8 @@ import edu.eci.arsw.project.flagwarriors.service.PlayerService;
 @Controller
 public class GameControllers {
 
-    @Autowired
-    private PlayerService playerService;
-
     @RequestMapping(value = "/lobby", method = RequestMethod.GET)
     public String iniciarJuego(){
-        //playerService.savePlayer("juan",0);
         return "lobby";
     }
     @GetMapping("/game")

@@ -1,20 +1,15 @@
 var app = (function () {
-    var name;
-    var api = apiclient;
     var score = 0;
 
-    var createPlayer = function() {
-        var player = {
-        name: name,
-        score:score
-
-        }
-
-    };
-
-
-
     return {
-        createPlayer:createPlayer
+        createPlayer: function () {
+            var nombre = document.getElementById("nombre").value;
+         
+            var player = { name: nombre, score: 0 };
+            apiclient.createPlayer(player, function () {               
+            });
+            window.location.href = "/lobby";
+            
+        }
     };
 })();

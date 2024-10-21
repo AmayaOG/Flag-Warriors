@@ -4,17 +4,10 @@ var apiclient = (function () {
     return {
 
 
-        getPlayerByname: function (name, callback) {
-            $.get(apiUrl + "/" + name, function (data) {
-                callback(data);
-            }).fail(function () {
-                console.error("Error al obtener los planos del autor: " + name);
-            });
-        },
-
-        createPlayer: function (player, 0,callback){
+        createPlayer: function (player,callback){
+        console.log(player);
         $.ajax({
-            url: apiUrl + "/" +player.name,
+            url: apiUrl,
             method: "PUT",
             data: JSON.stringify(player),
             contentType: "application/json",

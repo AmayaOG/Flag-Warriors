@@ -1,39 +1,33 @@
 package edu.eci.arsw.project.flagwarriors.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-import jakarta.persistence.Column;
-
+import jakarta.persistence.*;
 
 @Entity
 @Table(name = "players")
 public class Player {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY) 
-    @Column(name = "id") 
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "name", nullable = false) 
+    @Column(name = "name", nullable = false, unique = true)
     private String name;
 
-    @Column(name = "score", nullable = false) 
+    @Column(name = "score", nullable = false)
     private int score;
 
-    // Constructor vacío
+    @ManyToOne
+    @JoinColumn(name = "team_id")
+    private Team team; 
+
     public Player() {
     }
 
-    // Constructor con parámetros
     public Player(String name, int score) {
         this.name = name;
         this.score = score;
     }
 
-    // Getters y setters
     public Long getId() {
         return id;
     }
@@ -56,5 +50,13 @@ public class Player {
 
     public void setScore(int score) {
         this.score = score;
+    }
+
+    public Team getTeam() {
+        return team;
+    }
+
+    public void setTeam(Team team) {
+        this.team = team;
     }
 }
