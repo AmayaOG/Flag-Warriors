@@ -19,8 +19,8 @@ public class GameControllers {
 
     @RequestMapping(value = "/lobby", method = RequestMethod.GET)
     public String iniciarJuego(){
-        //playerService.createPlayer(nombre,0);
-        return "lobby"; 
+        //playerService.savePlayer("juan",0);
+        return "lobby";
     }
     @GetMapping("/game")
     public String game() {
