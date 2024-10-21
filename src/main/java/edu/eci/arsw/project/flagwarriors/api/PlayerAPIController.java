@@ -1,14 +1,14 @@
 package edu.eci.arsw.project.flagwarriors.api;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import edu.eci.arsw.project.flagwarriors.model.Player;
-import edu.eci.arsw.project.flagwarriors.model.Team;
 import edu.eci.arsw.project.flagwarriors.service.PlayerService;
-import edu.eci.arsw.project.flagwarriors.service.TeamService;
 
 @RestController
 @RequestMapping("/api/players")
@@ -43,5 +43,11 @@ public class PlayerAPIController {
         }
     }
 
-    // Métodos adicionales para actualizar y eliminar jugadores
+    @GetMapping
+    public ResponseEntity<List<Player>> getAllPlayers() {
+        List<Player> players = playerService.getAllPlayers();
+        return new ResponseEntity<>(players, HttpStatus.OK);
+    }
+    
+
 }

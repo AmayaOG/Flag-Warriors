@@ -16,6 +16,12 @@ var apiclient = (function () {
             },
 
         });
+        },
+
+        getAllPlayers: function (callback) {
+            $.get(apiUrl, function (data) {
+                callback(data);
+            });
         }
 
 

@@ -1,9 +1,12 @@
 package edu.eci.arsw.project.flagwarriors.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.*;
 
 @Entity
 @Table(name = "players")
+
 public class Player {
 
     @Id
@@ -18,6 +21,7 @@ public class Player {
 
     @ManyToOne
     @JoinColumn(name = "team_id")
+    @JsonIgnore
     private Team team; 
 
     public Player() {
