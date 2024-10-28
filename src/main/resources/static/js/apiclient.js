@@ -24,9 +24,9 @@ var apiclient = (function () {
             });
         },
 
-        captureFlag: function(player){
+        captureFlag: function(player,callback){
             $.ajax({
-                url: apiUrl + "/" + player.id + "/"+ "capture-flag", 
+                url: apiUrl +"/"+ "capture-flag", 
                 method: "POST",
                 data: JSON.stringify(player),
                 contentType: "application/json",

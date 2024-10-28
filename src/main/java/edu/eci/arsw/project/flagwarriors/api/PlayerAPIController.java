@@ -43,7 +43,7 @@ public class PlayerAPIController {
         }
     }
 
-    @PutMapping("/{id}/capture-flag")
+    @PostMapping("/capture-flag")
     public ResponseEntity<?> captureFlag(@RequestBody Player updatedPlayer) {
         
         if (playerService.getPlayerById(updatedPlayer.getId()) == null) {

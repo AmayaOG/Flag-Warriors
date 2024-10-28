@@ -112,9 +112,6 @@ function collectFlag(player, flag) {
   // Oculta la bandera cuando el jugador la captura
   flag.disableBody(true, true);
 
-  console.log("Bandera capturada por el jugador: ", player);
-
-  // Llama a captureFlag dentro de la escena
   this.captureFlag(player);
 }
 

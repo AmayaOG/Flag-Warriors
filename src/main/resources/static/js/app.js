@@ -22,6 +22,7 @@ var app = (function () {
         },
 
         captureFlag: function(player){
+            
             apiclient.captureFlag(player);
 
         }
