@@ -16,6 +16,11 @@ class game extends Phaser.Scene {
 
 
   }
+
+  captureFlag(player) {
+    app.captureFlag(player);
+  }
+
   create(){
   
 
@@ -31,7 +36,7 @@ class game extends Phaser.Scene {
     frames: this.anims.generateFrameNumbers("player",{start:0,end:0}),
     frameRate:10,
     repeat:-1
-});
+  });
 
 
     //mapa
@@ -61,8 +66,8 @@ class game extends Phaser.Scene {
     //teclas y coliciones
     this.cursors = this.input.keyboard.createCursorKeys();
     this.physics.add.collider(this.player,fondo)
-    this.physics.add.overlap(this.player, this.bandera1, collectFlag, null, this)
-    this.physics.add.overlap(this.player, this.bandera2, collectFlag, null, this)
+    this.physics.add.overlap(this.player, this.bandera1, (player, flag) => this.captureFlag(player), null, this);
+    this.physics.add.overlap(this.player, this.bandera2, (player, flag) => this.captureFlag(player), null, this);
 
 
     
@@ -104,8 +109,13 @@ class game extends Phaser.Scene {
 }
 
 function collectFlag(player, flag) {
-  // Acción a ejecutar cuando el jugador toca la bandera
-  flag.disableBody(true, true); // Oculta la bandera o la "recoge"
-  // Aquí podrías incrementar un contador de puntos o iniciar otro evento
+  // Oculta la bandera cuando el jugador la captura
+  flag.disableBody(true, true);
+
+  console.log("Bandera capturada por el jugador: ", player);
+
+  // Llama a captureFlag dentro de la escena
+  this.captureFlag(player);
 }
+
 

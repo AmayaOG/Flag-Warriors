@@ -5,7 +5,7 @@ var app = (function () {
         createPlayer: function () {
             var nombre = document.getElementById("nombre").value;
          
-            var player = { name: nombre, score: 0 };
+            var player = { name: nombre, score: 0, flag: false };
             apiclient.createPlayer(player, function () {       
                        
             });
@@ -19,6 +19,11 @@ var app = (function () {
             });
             
             
+        },
+
+        captureFlag: function(player){
+            apiclient.captureFlag(player);
+
         }
     };
 })();

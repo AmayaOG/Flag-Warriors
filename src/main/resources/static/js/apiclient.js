@@ -5,7 +5,7 @@ var apiclient = (function () {
 
 
         createPlayer: function (player,callback){
-        console.log(player);
+        //console.log(player);
         $.ajax({
             url: apiUrl,
             method: "PUT",
@@ -21,6 +21,19 @@ var apiclient = (function () {
         getAllPlayers: function (callback) {
             $.get(apiUrl, function (data) {
                 callback(data);
+            });
+        },
+
+        captureFlag: function(player){
+            $.ajax({
+                url: apiUrl + "/" + player.id + "/"+ "capture-flag", 
+                method: "POST",
+                data: JSON.stringify(player),
+                contentType: "application/json",
+                function(response) {
+                    callback(response);
+                },
+    
             });
         }
 

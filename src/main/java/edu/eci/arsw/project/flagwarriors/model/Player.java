@@ -19,6 +19,9 @@ public class Player {
     @Column(name = "score", nullable = false)
     private int score;
 
+    @Column(name = "flag",nullable = true)
+    private boolean flag;
+
     @ManyToOne
     @JoinColumn(name = "team_id")
     @JsonIgnore
@@ -63,4 +66,13 @@ public class Player {
     public void setTeam(Team team) {
         this.team = team;
     }
+
+    public boolean isFlag() {
+        return flag;
+    }
+    
+    public void setFlag(boolean flag) {
+        this.flag = flag;
+    }
+    
 }

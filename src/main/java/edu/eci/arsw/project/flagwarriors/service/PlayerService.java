@@ -44,10 +44,30 @@ public class PlayerService {
 
         return null;
     }
+
+    public Player updatePlayer(Player updatedPlayer) {
+    
+        if (playerRepository.findById(updatedPlayer.getId()).orElse(null) != null) {
+
+            updatedPlayer.setName(updatedPlayer.getName());
+            updatedPlayer.setScore(updatedPlayer.getScore());
+            updatedPlayer.setFlag(updatedPlayer.isFlag());
+            updatedPlayer.setTeam(updatedPlayer.getTeam());
+    
+            return playerRepository.save(updatedPlayer);
+        }
+        
+        return null;
+    }
+    
     
 
     public Player getPlayerByName(String name){
         return playerRepository.findByName(name);
+    }
+
+    public Player getPlayerById(Long id){
+        return playerRepository.findById(id).orElse(null);
     }
 
     public List<Player> getAllPlayers(){

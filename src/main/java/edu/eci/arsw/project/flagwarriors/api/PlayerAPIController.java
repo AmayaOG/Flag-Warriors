@@ -20,16 +20,16 @@ public class PlayerAPIController {
 
     @PutMapping
     public ResponseEntity<?> createPlayer(@RequestBody Player player) {
-    if (player.getName() == null || player.getName().isEmpty()) {
-        return new ResponseEntity<>("El nombre no puede estar vacío", HttpStatus.BAD_REQUEST);
-    }
-    
-    if (playerService.getPlayerByName(player.getName()) != null) {
-        return new ResponseEntity<>("El nombre ya está en uso", HttpStatus.CONFLICT);
-    }
+        if (player.getName() == null || player.getName().isEmpty()) {
+            return new ResponseEntity<>("El nombre no puede estar vacío", HttpStatus.BAD_REQUEST);
+        }
+        
+        if (playerService.getPlayerByName(player.getName()) != null) {
+            return new ResponseEntity<>("El nombre ya está en uso", HttpStatus.CONFLICT);
+        }
 
-    return new ResponseEntity<>(playerService.savePlayer(player), HttpStatus.CREATED);
-}
+        return new ResponseEntity<>(playerService.savePlayer(player), HttpStatus.CREATED);
+    }
 
 
     
@@ -43,6 +43,18 @@ public class PlayerAPIController {
         }
     }
 
+    @PutMapping("/{id}/capture-flag")
+    public ResponseEntity<?> captureFlag(@RequestBody Player updatedPlayer) {
+        
+        if (playerService.getPlayerById(updatedPlayer.getId()) == null) {
+            return new ResponseEntity<>("Jugador no encontrado", HttpStatus.NOT_FOUND);
+        }
+        updatedPlayer.setFlag(true);
+        playerService.updatePlayer(updatedPlayer); 
+        
+        return new ResponseEntity<>(updatedPlayer, HttpStatus.OK);
+    }
+    
     @GetMapping
     public ResponseEntity<List<Player>> getAllPlayers() {
         List<Player> players = playerService.getAllPlayers();
