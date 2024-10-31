@@ -43,16 +43,15 @@ public class PlayerAPIController {
         }
     }
 
-    @PostMapping("/capture-flag")
-    public ResponseEntity<?> captureFlag(@RequestBody Player updatedPlayer) {
+    @PostMapping("/{id}/capture-flag")
+    public ResponseEntity<?> captureFlag(@PathVariable Long id) {
         
-        if (playerService.getPlayerById(updatedPlayer.getId()) == null) {
+        if (playerService.getPlayerById(id) == null) {
             return new ResponseEntity<>("Jugador no encontrado", HttpStatus.NOT_FOUND);
         }
-        updatedPlayer.setFlag(true);
-        playerService.updatePlayer(updatedPlayer); 
-        
-        return new ResponseEntity<>(updatedPlayer, HttpStatus.OK);
+        playerService.captureFlag(id);        
+        return new ResponseEntity<>(playerService.getPlayerById(id), HttpStatus.OK);
+
     }
     
     @GetMapping

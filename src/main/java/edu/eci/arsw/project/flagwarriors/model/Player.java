@@ -10,7 +10,6 @@ import jakarta.persistence.*;
 public class Player {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(name = "name", nullable = false, unique = true)
@@ -30,7 +29,8 @@ public class Player {
     public Player() {
     }
 
-    public Player(String name, int score) {
+    public Player(Long id,String name, int score) {
+        this.id = id;
         this.name = name;
         this.score = score;
     }

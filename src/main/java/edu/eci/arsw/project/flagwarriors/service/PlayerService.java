@@ -45,6 +45,14 @@ public class PlayerService {
         return null;
     }
 
+    public void captureFlag(Long id){
+        Player p = getPlayerById(id);
+        p.setFlag(true);
+        updatePlayer(p);
+        
+    }
+
+
     public Player updatePlayer(Player updatedPlayer) {
     
         if (playerRepository.findById(updatedPlayer.getId()).orElse(null) != null) {

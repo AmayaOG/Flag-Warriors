@@ -1,11 +1,12 @@
 var app = (function () {
     var score = 0;
+    var playerId = null; 
 
     return {
         createPlayer: function () {
             var nombre = document.getElementById("nombre").value;
          
-            var player = { name: nombre, score: 0, flag: false };
+            var player = { id: getPlayerId ,name: nombre, score: 0, flag: false };
             apiclient.createPlayer(player, function () {       
                        
             });
@@ -21,10 +22,14 @@ var app = (function () {
             
         },
 
-        captureFlag: function(player){
+        captureFlag: function(id){
             
-            apiclient.captureFlag(player);
+            apiclient.captureFlag(id);
 
+        },
+
+        getPlayerId: function () {
+            return this.playerId;
         }
     };
 })();

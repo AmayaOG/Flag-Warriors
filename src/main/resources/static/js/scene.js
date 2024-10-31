@@ -17,10 +17,6 @@ class game extends Phaser.Scene {
 
   }
 
-  captureFlag(player) {
-    app.captureFlag(player);
-  }
-
   create(){
   
 
@@ -52,6 +48,7 @@ class game extends Phaser.Scene {
     this.player.setScale(2);
     this.player.setSize(20,40);
     this.player.setOffset(5,10);
+    this.playerId = app.getPlayerId();
 
     //banderas
     this.bandera1 = this.physics.add.sprite(1280, 950, 'banderaAzul');
@@ -66,8 +63,8 @@ class game extends Phaser.Scene {
     //teclas y coliciones
     this.cursors = this.input.keyboard.createCursorKeys();
     this.physics.add.collider(this.player,fondo)
-    this.physics.add.overlap(this.player, this.bandera1, (player, flag) => this.captureFlag(player), null, this);
-    this.physics.add.overlap(this.player, this.bandera2, (player, flag) => this.captureFlag(player), null, this);
+    this.physics.add.overlap(this.player, this.bandera1, (player, flag) => this.collectFlag(player,flag), null, this);
+    this.physics.add.overlap(this.player, this.bandera2, (player, flag) => this.collectFlag(player,flag), null, this);
 
 
     
@@ -106,13 +103,16 @@ class game extends Phaser.Scene {
 
     }
   }
+
+
+  collectFlag(player, flag) {
+    // Oculta la bandera cuando el jugador la captura
+    flag.disableBody(true, true);
+    console.log(this.playerId);
+  
+    app.captureFlag({ id: this.playerId });
+  }
 }
 
-function collectFlag(player, flag) {
-  // Oculta la bandera cuando el jugador la captura
-  flag.disableBody(true, true);
-
-  this.captureFlag(player);
-}
 
 
