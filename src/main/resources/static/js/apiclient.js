@@ -1,11 +1,11 @@
 var apiclient = (function () {
-    var apiUrl = "http://localhost:8080/api/players";
+    var apiUrl = "http://localhost:8080/api";
 
     return {
 
         createPlayer: function (player, callback) {
             $.ajax({
-                url: apiUrl,
+                url: `${apiUrl}/players`,
                 method: "PUT",
                 data: JSON.stringify(player),
                 contentType: "application/json",
@@ -19,16 +19,48 @@ var apiclient = (function () {
         },
 
         getAllPlayers: function (callback) {
-            $.get(apiUrl, function (data) {
+            $.get(`${apiUrl}/players`, function (data) {
                 callback(data);
             }).fail(function (error) {
                 console.error("Error al obtener jugadores:", error);
             });
         },
+        renderPlayers: function (players) {
+            const playersList = $('#players-list'); // Asegúrate de que este ID esté en el HTML
+            playersList.empty(); // Limpia el contenido existente
+            console.log(players);
+        
+            // Obtener y renderizar los jugadores de Equipo A
+            this.getTeamByName("EquipoA", function (teamAPlayers) {
+                playersList.append(`<h1>Equipo A</h1>`);
+                playersList.append(`<table border="1"><tr><th>Jugador</th></tr>`);
+                teamAPlayers.forEach(player => {
+                    playersList.append(`<tr><td>${player.name}</td></tr>`);
+                });
+                playersList.append(`</table>`);
+            });
+        
+            // Obtener y renderizar los jugadores de Equipo B
+            this.getTeamByName("EquipoB", function (teamBPlayers) {
+                playersList.append(`<h1>Equipo B</h1>`);
+                playersList.append(`<table border="1"><tr><th>Jugador</th></tr>`);
+                teamBPlayers.forEach(player => {
+                    playersList.append(`<tr><td>${player.name}</td></tr>`);
+                });
+                playersList.append(`</table>`);
+            });
+        },
+        getTeamByName: function (name, callback) {
+            $.get(`${apiUrl}/teams/${name}`, function (data) {
+                callback(data);
+            }).fail(function (error) {
+                console.error("Error al obtener equipos:", error);
+            });
+        },
 
         captureFlag: function (playerId, callback) {
             $.ajax({
-                url: `${apiUrl}/${playerId}/capture-flag`, 
+                url: `${apiUrl}/players/${playerId}/capture-flag`, 
                 method: "POST",
                 success: function (response) {
                     callback(response);
@@ -39,4 +71,11 @@ var apiclient = (function () {
             });
         }
     };
+    
 })();
+$(document).ready(function () {
+    const currentPage = window.location.pathname.split('/').pop();
+    if (currentPage === 'lobby.html') {
+        apiclient.getAllPlayers(apiclient.renderPlayers); // Usar `renderPlayers` como callback
+    }
+});

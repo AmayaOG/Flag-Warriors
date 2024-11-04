@@ -31,8 +31,8 @@ public class TeamService {
         return teamRepository.findByName(name);
     }
 
-     public List<Player> getAllPlayers() {
-        return playerRepository.findAll();
+     public List<Team> getAllteams() {
+        return teamRepository.findAll();
     }
 
     public void saveTeam(Team team) {

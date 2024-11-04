@@ -1,12 +1,12 @@
 var app = (function () {
     var score = 0;
-    var playerId = null; 
+    var playerId = 0; 
 
     return {
         createPlayer: function () {
             var nombre = document.getElementById("nombre").value;
-         
-            var player = { id: getPlayerId ,name: nombre, score: 0, flag: false };
+            
+            var player = { id: this.getPlayerId ,name: nombre, score: 0, flag: false };
             apiclient.createPlayer(player, function () {       
                        
             });
@@ -29,6 +29,7 @@ var app = (function () {
         },
 
         getPlayerId: function () {
+            playerId++;
             return this.playerId;
         }
     };

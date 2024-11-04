@@ -22,11 +22,10 @@ public class PlayerService {
     private static int playerCount = 0;
 
     public Player savePlayer(Player player) {
-        
         if (playerRepository.count() == 0) {
 
-            Team teamA = new Team("Equipo A");
-            Team teamB = new Team("Equipo B");
+            Team teamA = new Team("EquipoA");
+            Team teamB = new Team("EquipoB");
             teamRepository.save(teamA);
             teamRepository.save(teamB);
         }
