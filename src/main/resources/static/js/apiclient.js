@@ -26,10 +26,10 @@ var apiclient = (function () {
             });
         },
         renderPlayers: function (players) {
-            const playersList = $('#players-list'); // Asegúrate de que este ID esté en el HTML
+            const playersList = $('#players-list'); 
             playersList.empty(); // Limpia el contenido existente
         
-            this.getTeamByName("EquipoA", (teamA) => {
+            this.getTeamById("1", (teamA) => {
                 playersList.append(`<h1>Equipo A</h1>`);
                 //playersList.append(`<table border="1"><tr><th>Jugador</th></tr>`);
                 teamA.players.forEach(player => {
@@ -38,7 +38,7 @@ var apiclient = (function () {
                 playersList.append(`</table>`);
         
                 // Después de renderizar Equipo A, obtener y renderizar los jugadores de Equipo B
-                this.getTeamByName("EquipoB", (teamB) => {
+                this.getTeamById("2", (teamB) => {
                     playersList.append(`<h1>Equipo B</h1>`);
                     //playersList.append(`<table border="1"><tr><th>Jugador</th></tr>`);
                     teamB.players.forEach(player => {
@@ -48,6 +48,7 @@ var apiclient = (function () {
                 });
             });
         },
+
         createTeams: function (name,imagenPath,callback) {
             const teamData = {
                 name: name,
@@ -67,12 +68,23 @@ var apiclient = (function () {
             });
         },
         getTeamByName: function (name, callback) {
-            $.get(`${apiUrl}/teams/${name}`, function (data) {
+            $.get(`${apiUrl}/teams/name/${name}`, function (data) {
                 callback(data);
             }).fail(function (error) {
                 console.error("Error al obtener equipos:", error);
             });
         },
+
+        getTeamById: function(id, callback) {
+            $.get(`${apiUrl}/teams/${id}`, function(data) {
+                if (callback) {
+                    callback(data);
+                }
+            }).fail(function(error) {
+                console.error("Error al obtener equipos:", error);
+            });
+        },
+
         getPlayerById: function (id, callback) {
             $.get(`${apiUrl}/players/${id}`, function (data) {
                 callback(data);

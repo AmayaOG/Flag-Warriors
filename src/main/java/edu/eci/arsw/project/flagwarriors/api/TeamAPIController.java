@@ -16,6 +16,8 @@ import edu.eci.arsw.project.flagwarriors.model.Player;
 import edu.eci.arsw.project.flagwarriors.model.Team;
 import edu.eci.arsw.project.flagwarriors.service.PlayerService;
 import edu.eci.arsw.project.flagwarriors.service.TeamService;
+import org.springframework.web.bind.annotation.RequestParam;
+
 
 @RestController
 @RequestMapping("/api/teams")
@@ -37,7 +39,7 @@ public class TeamAPIController {
         return new ResponseEntity<>(teamService.saveTeam(team), HttpStatus.CREATED);
     }
 
-    @GetMapping("/{name}")
+    @GetMapping("/name/{name}")
     public ResponseEntity<Team> getTeam(@PathVariable String name) {
         Team team = teamService.getTeamByName(name);
         if (team != null) {
@@ -46,4 +48,15 @@ public class TeamAPIController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<Team> getTeamById(@PathVariable Long id) {
+        Team team = teamService.getTeamById(id);
+        if (team != null) {
+            return new ResponseEntity<>(team, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+    
 }

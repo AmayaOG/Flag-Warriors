@@ -12,23 +12,23 @@ public class Team {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "name", nullable = false, unique = true)
-    public String name;
+    @Column(name = "name")
+    private String name;
 
     @OneToMany(mappedBy = "team", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Player> players;
-    
-    public String imagenPath;
+
+    @Column(name = "imagen_path")
+    private String imagenPath;
+
+    @Column(name = "score", nullable = false)
     private int score = 0;
-
-    
-
 
     public Team() {
         this.players = new ArrayList<>();
     }
 
-    public Team(String name,String imagenPath) {
+    public Team(String name, String imagenPath) {
         this.name = name;
         this.players = new ArrayList<>();
         this.imagenPath = imagenPath;
@@ -59,21 +59,24 @@ public class Team {
         players.add(player);
         player.setTeam(this); // Asignar el equipo al jugador
     }
-    
+
     public List<Player> getAllPlayers() {
         return players;
     }
 
     public String getPath() {
         return this.imagenPath;
-
     }
-    public int getScore(){
+
+    public void setImagenPath(String imagenPath) {
+        this.imagenPath = imagenPath;
+    }
+
+    public int getScore() {
         return this.score;
     }
 
-    public void setScore(int score){
+    public void setScore(int score) {
         this.score = score;
     }
-
 }
