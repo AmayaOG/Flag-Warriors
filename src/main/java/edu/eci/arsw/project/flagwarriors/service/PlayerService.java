@@ -24,8 +24,8 @@ public class PlayerService {
     public Player savePlayer(Player player) {
         if (playerRepository.count() == 0) {
 
-            Team teamA = new Team("EquipoA");
-            Team teamB = new Team("EquipoB");
+            Team teamA = new Team("EquipoA","../images/playerA.png");
+            Team teamB = new Team("EquipoB","../images/playerB.png");
             teamRepository.save(teamA);
             teamRepository.save(teamB);
         }

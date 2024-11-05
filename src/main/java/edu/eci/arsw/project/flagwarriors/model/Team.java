@@ -17,14 +17,18 @@ public class Team {
 
     @OneToMany(mappedBy = "team", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Player> players;
+    
+    private String imagenPath;
+
 
     public Team() {
         this.players = new ArrayList<>();
     }
 
-    public Team(String name) {
+    public Team(String name,String imagenPath) {
         this.name = name;
         this.players = new ArrayList<>();
+        this.imagenPath = imagenPath;
     }
 
     // Getters y Setters

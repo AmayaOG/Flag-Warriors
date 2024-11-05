@@ -34,6 +34,7 @@ public class Player {
         this.name = name;
         this.score = score;
         this.flag=flag;
+        
     }
 
     public Long getId() {

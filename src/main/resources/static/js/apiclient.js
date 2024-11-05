@@ -28,23 +28,22 @@ var apiclient = (function () {
         renderPlayers: function (players) {
             const playersList = $('#players-list'); // Asegúrate de que este ID esté en el HTML
             playersList.empty(); // Limpia el contenido existente
-            console.log(players);
         
             // Obtener y renderizar los jugadores de Equipo A
-            this.getTeamByName("EquipoA", function (teamAPlayers) {
+            this.getTeamByName("EquipoA", function (teamA) {
                 playersList.append(`<h1>Equipo A</h1>`);
                 playersList.append(`<table border="1"><tr><th>Jugador</th></tr>`);
-                teamAPlayers.forEach(player => {
+                teamA.players.forEach(player => {
                     playersList.append(`<tr><td>${player.name}</td></tr>`);
                 });
                 playersList.append(`</table>`);
             });
         
             // Obtener y renderizar los jugadores de Equipo B
-            this.getTeamByName("EquipoB", function (teamBPlayers) {
+            this.getTeamByName("EquipoB", function (teamB) {
                 playersList.append(`<h1>Equipo B</h1>`);
                 playersList.append(`<table border="1"><tr><th>Jugador</th></tr>`);
-                teamBPlayers.forEach(player => {
+                teamB.players.forEach(player => {
                     playersList.append(`<tr><td>${player.name}</td></tr>`);
                 });
                 playersList.append(`</table>`);
@@ -74,8 +73,8 @@ var apiclient = (function () {
     
 })();
 $(document).ready(function () {
-    const currentPage = window.location.pathname.split('/').pop();
-    if (currentPage === 'lobby.html') {
-        apiclient.getAllPlayers(apiclient.renderPlayers); // Usar `renderPlayers` como callback
+    const currentPage = window.location.pathname;
+    if (currentPage === '/lobby') {
+        apiclient.renderPlayers(); // Usar `renderPlayers` como callback
     }
 });

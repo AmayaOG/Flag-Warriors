@@ -10,7 +10,7 @@ class game extends Phaser.Scene {
   preload(){
     this.load.image("textura","../map/Textures-16.png");
     this.load.tilemapTiledJSON("mapa", "../map/mapa.json");
-    this.load.spritesheet("player","../images/player.png",{ frameWidth: 48.4,frameHeight: 50})
+    //this.load.spritesheet("player","../images/player.png",{ frameWidth: 48.4,frameHeight: 50})
     this.load.image("banderaAzul","../images/banderaAzul.png");
     this.load.image("banderaNaranja","../images/banderaNaranja.png");
 
