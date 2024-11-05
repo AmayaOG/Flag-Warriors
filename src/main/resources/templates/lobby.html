@@ -11,10 +11,23 @@
 </head>
 <body>
     <div class="game-container">
-        <button class="button start-button" onclick="window.location.href='/game'">next</button>
+        <button class="button start-button" onclick="goToGame()">Next</button>
         <div id="players-list"></div> <!-- Contenedor para los jugadores -->
 
     </div>
    
 </body>
+<script>
+    // Extrae el ID del jugador desde la URL
+    function getPlayerIdFromUrl() {
+        const urlParams = new URLSearchParams(window.location.search);
+        return urlParams.get("id");
+    }
+    
+    // Función para redirigir a la página 'game' con el ID en la URL
+    function goToGame() {
+        const playerId = getPlayerIdFromUrl();
+        window.location.href = `/game?id=${playerId}`;
+    }
+    </script>
 </html>

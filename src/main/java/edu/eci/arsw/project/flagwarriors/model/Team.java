@@ -13,12 +13,15 @@ public class Team {
     private Long id;
 
     @Column(name = "name", nullable = false, unique = true)
-    private String name;
+    public String name;
 
     @OneToMany(mappedBy = "team", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Player> players;
     
-    private String imagenPath;
+    public String imagenPath;
+    private int score = 0;
+
+    
 
 
     public Team() {
@@ -59,6 +62,18 @@ public class Team {
     
     public List<Player> getAllPlayers() {
         return players;
+    }
+
+    public String getPath() {
+        return this.imagenPath;
+
+    }
+    public int getScore(){
+        return this.score;
+    }
+
+    public void setScore(int score){
+        this.score = score;
     }
 
 }

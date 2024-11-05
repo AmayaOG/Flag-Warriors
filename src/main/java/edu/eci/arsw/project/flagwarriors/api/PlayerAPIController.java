@@ -18,7 +18,7 @@ public class PlayerAPIController {
     private PlayerService playerService;
 
 
-    @PutMapping
+    @PostMapping
     public ResponseEntity<?> createPlayer(@RequestBody Player player) {
         if (player.getName() == null || player.getName().isEmpty()) {
             return new ResponseEntity<>("El nombre no puede estar vacío", HttpStatus.BAD_REQUEST);
@@ -28,7 +28,8 @@ public class PlayerAPIController {
             return new ResponseEntity<>("El nombre ya está en uso", HttpStatus.CONFLICT);
         }
 
-        return new ResponseEntity<>(playerService.savePlayer(player), HttpStatus.CREATED);
+        Player savedPlayer = playerService.savePlayer(player);
+        return new ResponseEntity<>(savedPlayer, HttpStatus.CREATED);
     }
 
 
@@ -42,15 +43,31 @@ public class PlayerAPIController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
+    @GetMapping("/{id}")
+    public ResponseEntity<Player> getPlayer(@PathVariable long id) {
+        Player player = playerService.getPlayerById(id);
+        if (player != null) {
+            return new ResponseEntity<>(player, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
 
     @PostMapping("/{id}/capture-flag")
     public ResponseEntity<?> captureFlag(@PathVariable Long id) {
+        Player player = playerService.getPlayerById(id);
+
         
-        if (playerService.getPlayerById(id) == null) {
+        if (player == null) {
             return new ResponseEntity<>("Jugador no encontrado", HttpStatus.NOT_FOUND);
         }
-        playerService.captureFlag(id);        
-        return new ResponseEntity<>(playerService.getPlayerById(id), HttpStatus.OK);
+
+        boolean success = playerService.captureFlag(id);         
+        if (success) {
+            return new ResponseEntity<>("Bandera capturada con éxito", HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>("No se pudo capturar la bandera", HttpStatus.BAD_REQUEST);
+        }
 
     }
     

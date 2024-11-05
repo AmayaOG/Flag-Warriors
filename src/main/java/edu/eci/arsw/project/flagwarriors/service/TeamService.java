@@ -22,6 +22,14 @@ public class TeamService {
     @Autowired
     private PlayerRepository playerRepository;
 
+    public Team CreateTeams(String name, String path) {
+        Team team = new Team(name,path);
+        
+        return teamRepository.save(team);
+        
+        
+    }
+
     public Team getTeamById(Long id) {
         Optional<Team> team = teamRepository.findById(id);
         return team.orElse(null); 
@@ -35,7 +43,7 @@ public class TeamService {
         return teamRepository.findAll();
     }
 
-    public void saveTeam(Team team) {
-        teamRepository.save(team);
+    public Team saveTeam(Team team) {
+       return teamRepository.save(team);
     }
 }

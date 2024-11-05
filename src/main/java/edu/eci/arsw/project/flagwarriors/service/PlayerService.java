@@ -22,21 +22,16 @@ public class PlayerService {
     private static int playerCount = 0;
 
     public Player savePlayer(Player player) {
-        if (playerRepository.count() == 0) {
-
-            Team teamA = new Team("EquipoA","../images/playerA.png");
-            Team teamB = new Team("EquipoB","../images/playerB.png");
-            teamRepository.save(teamA);
-            teamRepository.save(teamB);
-        }
-
-
         List<Team> teams = teamRepository.findAll();
        
         Team teamToAssign = teams.get(playerCount % 2);
-        if (teamToAssign.getAllPlayers().size() < 4) {
-            teamToAssign.addPlayer(player);
-            player.setTeam(teamToAssign);
+        
+        Team managedTeam = teamRepository.findById(teamToAssign.getId())
+        .orElseThrow(() -> new RuntimeException("Team not found"));
+        
+        if (managedTeam.getAllPlayers().size() < 4) {
+            managedTeam.addPlayer(player);
+            player.setTeam(managedTeam);
             playerCount++;
             return playerRepository.save(player);   
         } 
@@ -44,10 +39,18 @@ public class PlayerService {
         return null;
     }
 
-    public void captureFlag(Long id){
+    public Boolean captureFlag(Long id){
         Player p = getPlayerById(id);
+        if (p == null) {
+            return false; // Si el jugador no existe, retorna false
+        }
+        if (p.isFlag()) {
+            return false; // Si ya tiene la bandera, retorna false
+        }
+    
         p.setFlag(true);
         updatePlayer(p);
+        return true;
         
     }
 

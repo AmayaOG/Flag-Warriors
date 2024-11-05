@@ -10,7 +10,7 @@ class game extends Phaser.Scene {
   preload(){
     this.load.image("textura","../map/Textures-16.png");
     this.load.tilemapTiledJSON("mapa", "../map/mapa.json");
-    //this.load.spritesheet("player","../images/player.png",{ frameWidth: 48.4,frameHeight: 50})
+    this.load.spritesheet("player","../images/playerA.png",{ frameWidth: 48.4,frameHeight: 50})
     this.load.image("banderaAzul","../images/banderaAzul.png");
     this.load.image("banderaNaranja","../images/banderaNaranja.png");
 
@@ -108,11 +108,22 @@ class game extends Phaser.Scene {
   collectFlag(player, flag) {
     // Oculta la bandera cuando el jugador la captura
     flag.disableBody(true, true);
-    console.log(this.playerId);
-  
-    app.captureFlag({ id: this.playerId });
+
+    // Obtiene el ID del jugador de la URL
+    const currentUrl = window.location.href;
+    const url = new URL(currentUrl);
+    const params = new URLSearchParams(url.search);
+    const id = params.get('id');
+
+    console.log("ID del jugador:", id); // Verifica que obtienes el ID correcto
+
+    // Asegúrate de que estás pasando una función de callback
+    app.captureFlag(id, function(response) {
+      if (response) {
+          console.log("Respuesta del servidor:", response);
+      } else {
+          console.error("No se recibió respuesta del servidor.");
+      }
+  });
   }
 }
-
-
-

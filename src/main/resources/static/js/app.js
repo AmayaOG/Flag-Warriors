@@ -1,35 +1,36 @@
 var app = (function () {
     var score = 0;
-    var playerId = 0; 
+    var currentPlayer = null;
+
+
 
     return {
         createPlayer: function () {
             var nombre = document.getElementById("nombre").value;
             
-            var player = { id: this.getPlayerId ,name: nombre, score: 0, flag: false };
-            apiclient.createPlayer(player, function () {       
-                       
+            var player = { name: nombre, score: 0, flag: false };
+            apiclient.createPlayer(player, function (createdPlayer) {       
+                currentPlayer = createdPlayer;
+                console.log("Jugador creado y guardado:", currentPlayer.name, currentPlayer.id);
+        
+                // Ahora puedes usar el jugador con su ID como referencia
+                apiclient.getAllPlayers(function(players) {
+                    if (players.length >= 8) { 
+                        window.location.href = "/error"; 
+                    } else {
+                        window.location.href = `/lobby?id=${createdPlayer.id}`; 
+                    }
+                });
             });
-
-            apiclient.getAllPlayers(function(players) {
-                if (players.length >= 8) { 
-                    window.location.href = "/error"; 
-                } else {
-                    window.location.href = "/lobby"; 
-                }
-            });
-            
-            
         },
 
-        captureFlag: function(id){
+        captureFlag: function(id,callback){
             
-            apiclient.captureFlag(id);
+            apiclient.captureFlag(id,callback);
 
         },
 
         getPlayerId: function () {
-            playerId++;
             return this.playerId;
         }
     };
