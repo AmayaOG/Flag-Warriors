@@ -25,6 +25,8 @@ public class PlayerService {
         List<Team> teams = teamRepository.findAll();
        
         Team teamToAssign = teams.get(playerCount % 2);
+        String path = teamToAssign.getPath();
+        player.setPath(path);
         
         Team managedTeam = teamRepository.findById(teamToAssign.getId())
         .orElseThrow(() -> new RuntimeException("Team not found"));

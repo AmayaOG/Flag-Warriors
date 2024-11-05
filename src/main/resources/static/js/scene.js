@@ -3,27 +3,51 @@ class game extends Phaser.Scene {
   constructor () {
       super ("gameMap"); // nombre escena
       this.cursors = null; // declara cursors como propiedad
-      this.player = null;
+      this.currentPlayer = null;
+      this.playerId = null; // Declara playerId como propiedad
       this.bandera1=null;
       this.bandera2=null
+      this.getplayer();
+  }
+  
+  getplayer() {
+    const currentUrl = window.location.href;
+    const url = new URL(currentUrl);
+    const params = new URLSearchParams(url.search);
+    const id = params.get('id');
+
+    if (!id) {
+      console.error("ID no encontrado en la URL");
+      return; // Finaliza la ejecución si id es undefined o null
+    }
+  
+    return new Promise((resolve, reject) => {
+      apiclient.getPlayerById(id, (data) => {
+        this.currentPlayer = data; 
+        this.playerId = data.id;
+        this.load.spritesheet("player", this.currentPlayer.path, { frameWidth: 128, frameHeight: 128 });
+
+        resolve(); // Resuelve la promesa
+      });
+    });
   }
   preload(){
     this.load.image("textura","../map/Textures-16.png");
     this.load.tilemapTiledJSON("mapa", "../map/mapa.json");
-    this.load.spritesheet("player","../images/playerA.png",{ frameWidth: 48.4,frameHeight: 50})
     this.load.image("banderaAzul","../images/banderaAzul.png");
     this.load.image("banderaNaranja","../images/banderaNaranja.png");
-
-
   }
 
-  create(){
-  
+
+  async create(){
+    await this.getplayer();
+    this.cursors = this.input.keyboard.createCursorKeys();
+
 
     //anikmaciones
     this.anims.create({
       key: "caminar",
-      frames: this.anims.generateFrameNumbers("player",{start:4,end:9}),
+      frames: this.anims.generateFrameNumbers("player",{start:1,end:7}),
       frameRate:10,
       repeat:-1
   });
@@ -43,12 +67,20 @@ class game extends Phaser.Scene {
     fondo.setCollisionByProperty({colision:true});
 
     //primer personaje
-    this.player = this.physics.add.sprite(500,500,"player")
-    this.player.setCollideWorldBounds(true);
-    this.player.setScale(2);
-    this.player.setSize(20,40);
-    this.player.setOffset(5,10);
-    this.playerId = app.getPlayerId();
+    if(this.currentPlayer.path =="../images/playerA.png"){
+      this.player = this.physics.add.sprite(500,500,"player")
+      this.player.setCollideWorldBounds(true);
+      this.player.setScale(1);
+      this.player.setSize(30,80);
+      this.player.setOffset(50,47);
+    }else{
+      this.player = this.physics.add.sprite(500,500,"player")
+      this.player.setCollideWorldBounds(true);
+      this.player.setScale(1);
+      this.player.setSize(30,80);
+      this.player.setOffset(36,47);
+    }
+    
 
     //banderas
     this.bandera1 = this.physics.add.sprite(1280, 950, 'banderaAzul');
@@ -61,19 +93,30 @@ class game extends Phaser.Scene {
 
 
     //teclas y coliciones
-    this.cursors = this.input.keyboard.createCursorKeys();
     this.physics.add.collider(this.player,fondo)
-    this.physics.add.overlap(this.player, this.bandera1, (player, flag) => this.collectFlag(player,flag), null, this);
-    this.physics.add.overlap(this.player, this.bandera2, (player, flag) => this.collectFlag(player,flag), null, this);
+    
+    if(this.currentPlayer.path =="../images/playerA.png"){
+      this.physics.add.overlap(this.player, this.bandera1, (player, flag) => this.collectFlag(player,flag), null, this);
+    }else{
+      this.physics.add.overlap(this.player, this.bandera2, (player, flag) => this.collectFlag(player,flag), null, this);
+
+    }
 
 
     
   }
   update(){
+    if (!this.cursors) return;
+
     if(this.cursors.right.isDown){
       this.player.setVelocityX(150);
       this.player.anims.play("caminar",true);
-      this.player.setOffset(5,10)
+      if(this.currentPlayer.path =="../images/playerA.png"){
+        this.player.setOffset(50,47)
+      }else{
+        this.player.setOffset(38,47)
+      }
+      
       if(this.player.flipX==true) {
         this.player.x=this.player.x+19
       }
@@ -86,7 +129,11 @@ class game extends Phaser.Scene {
         this.player.x=this.player.x-19
       }
       this.player.flipX=true;
-      this.player.setOffset(22,10)      
+      if(this.currentPlayer.path =="../images/playerA.png"){
+        this.player.setOffset(50,47)
+      }else{
+        this.player.setOffset(62,47)
+      }      
     }else if(this.cursors.up.isDown){
       this.player.setVelocityY(-150);
       this.player.anims.play("caminar",true);
@@ -106,24 +153,21 @@ class game extends Phaser.Scene {
 
 
   collectFlag(player, flag) {
-    // Oculta la bandera cuando el jugador la captura
+    if (!this.player) return;
     flag.disableBody(true, true);
-
-    // Obtiene el ID del jugador de la URL
-    const currentUrl = window.location.href;
-    const url = new URL(currentUrl);
-    const params = new URLSearchParams(url.search);
-    const id = params.get('id');
-
-    console.log("ID del jugador:", id); // Verifica que obtienes el ID correcto
-
-    // Asegúrate de que estás pasando una función de callback
-    app.captureFlag(id, function(response) {
-      if (response) {
+    console.log("Player ID:", this.playerId);
+  
+    if (this.playerId) {
+      app.captureFlag(this.playerId, function(response) {
+        if (response) {
           console.log("Respuesta del servidor:", response);
-      } else {
+        } else {
           console.error("No se recibió respuesta del servidor.");
-      }
-  });
+        }
+      });
+    } else {
+      console.error("ID del jugador no encontrado.");
+    }
   }
+  
 }

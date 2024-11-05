@@ -34,17 +34,9 @@ public class PlayerAPIController {
 
 
     
-    @GetMapping("/{name}")
-    public ResponseEntity<Player> getPlayer(@PathVariable String name) {
-        Player player = playerService.getPlayerByName(name);
-        if (player != null) {
-            return new ResponseEntity<>(player, HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-    }
+    
     @GetMapping("/{id}")
-    public ResponseEntity<Player> getPlayer(@PathVariable long id) {
+    public ResponseEntity<Player> getPlayerbyId(@PathVariable long id) {
         Player player = playerService.getPlayerById(id);
         if (player != null) {
             return new ResponseEntity<>(player, HttpStatus.OK);

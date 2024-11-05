@@ -74,7 +74,7 @@ var apiclient = (function () {
             });
         },
         getPlayerById: function (id, callback) {
-            $.get(`${apiUrl}/pLayers/${id}`, function (data) {
+            $.get(`${apiUrl}/players/${id}`, function (data) {
                 callback(data);
             }).fail(function (error) {
                 console.error("Error al obtener equipos:", error);

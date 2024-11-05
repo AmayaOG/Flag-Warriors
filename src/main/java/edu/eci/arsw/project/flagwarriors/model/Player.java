@@ -27,6 +27,9 @@ public class Player {
     @JsonIgnore
     private Team team; 
 
+    @Column(name = "path",nullable = true)
+    private String path;
+
     public Player() {
     }
 
@@ -76,6 +79,13 @@ public class Player {
     
     public void setFlag(boolean flag) {
         this.flag = flag;
+    }
+    public String getPath() {
+        return path;  
+    }
+    
+    public void setPath(String path) {
+        this.path = path;
     }
     
 }
