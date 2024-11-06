@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lobby</title>
+    <link rel="stylesheet" href="css/styleLobby.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="/js/apiclient.js"></script>
+    <script src="/js/app.js"></script>
+</head>
+<body>
+    <div class="game-container">
+        <button class="button start-button" onclick="goToGame()">Next</button>
+        <div id="players-list"></div> <!-- Contenedor para los jugadores -->
+
+    </div>
+   
+</body>
+<script>
+    // Extrae el ID del jugador desde la URL
+    function getPlayerIdFromUrl() {
+        const urlParams = new URLSearchParams(window.location.search);
+        return urlParams.get("id");
+    }
+    
+    // Función para redirigir a la página 'game' con el ID en la URL
+    function goToGame() {
+        const playerId = getPlayerIdFromUrl();
+        window.location.href = `/game?id=${playerId}`;
+    }
+    </script>
+</html>
