@@ -65,13 +65,13 @@ class game extends Phaser.Scene {
 
         // Crear jugador
         if (this.currentPlayer.path == "../images/playerA.png") {
-            this.player = this.physics.add.sprite(500, 500, "player");
+            this.player = this.physics.add.sprite(200, 200, "player");
             this.player.setCollideWorldBounds(true);
             this.player.setScale(1);
             this.player.setSize(30, 80);
             this.player.setOffset(50, 47);
         } else {
-            this.player = this.physics.add.sprite(500, 500, "player");
+            this.player = this.physics.add.sprite(1300, 800, "player");
             this.player.setCollideWorldBounds(true);
             this.player.setScale(1);
             this.player.setSize(30, 80);
@@ -81,6 +81,15 @@ class game extends Phaser.Scene {
         // Banderas
         this.bandera1 = this.physics.add.sprite(1280, 950, 'banderaAzul').setScale(0.3).setSize(100, 100);
         this.bandera2 = this.physics.add.sprite(180, 120, 'banderaNaranja').setScale(0.3).setSize(100, 100);
+
+        // Colisiones
+        this.physics.add.collider(this.player, fondo);
+
+        if (this.currentPlayer.path == "../images/playerA.png") {
+            this.physics.add.overlap(this.player, this.bandera1, (player, flag) => this.collectFlag(player, flag), null, this);
+        } else {
+            this.physics.add.overlap(this.player, this.bandera2, (player, flag) => this.collectFlag(player, flag), null, this);
+        }
 
         // Conectar al servidor WebSocket
         this.connectToWebSocket();
@@ -155,4 +164,30 @@ class game extends Phaser.Scene {
         // Aquí puedes implementar la lógica para actualizar la posición de otros jugadores
         console.log(`Actualizar posición de otro jugador: ID=${data.id}, x=${data.x}, y=${data.y}`);
     }
+
+    collectFlag(player, flag) {
+        if (!this.player) return;
+        flag.disableBody(true, true);
+        console.log("Player ID:", this.playerId);
+  
+        if (this.playerId) {
+            const flagCaptureMessage = {
+                type: 'flagCaptured',
+                playerId: this.playerId,
+                team: this.currentPlayer.team
+            };
+            this.ws.send(JSON.stringify(flagCaptureMessage));
+  
+            app.captureFlag(this.playerId, function(response) {
+                if (response) {
+                    console.log("Respuesta del servidor:", response);
+                } else {
+                    console.error("No se recibió respuesta del servidor.");
+                }
+            });
+        } else {
+            console.error("ID del jugador no encontrado.");
+        }
+    }
+
 }
