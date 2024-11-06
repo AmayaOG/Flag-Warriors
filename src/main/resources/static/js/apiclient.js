@@ -71,7 +71,11 @@ var apiclient = (function () {
             $.get(`${apiUrl}/teams/name/${name}`, function (data) {
                 callback(data);
             }).fail(function (error) {
-                console.error("Error al obtener equipos:", error);
+                if (error.status === 404) {
+                    callback(null); // Llama al callback con null si el equipo no existe
+                } else {
+                    console.error("Error al obtener equipos:", error);
+                }
             });
         },
 
@@ -114,7 +118,18 @@ $(document).ready(function () {
         apiclient.renderPlayers(); // Usar `renderPlayers` como callback
     }
     if (currentPage === '/') {
-        apiclient.createTeams("EquipoA","../images/playerA.png"); 
-        apiclient.createTeams("EquipoB","../images/playerB.png");
+
+        apiclient.getTeamByName("EquipoA", function(teamA) {
+            if (!teamA) { 
+                apiclient.createTeams("EquipoA", "../images/playerA.png");
+            }
+        });
+        
+       
+        apiclient.getTeamByName("EquipoB", function(teamB) {
+            if (!teamB) { 
+                apiclient.createTeams("EquipoB", "../images/playerB.png");
+            }
+        });
     }
 });

@@ -24,10 +24,8 @@ public class TeamService {
 
     public Team CreateTeams(String name, String path) {
         Team team = new Team(name,path);
-        
+       
         return teamRepository.save(team);
-        
-        
     }
 
     public Team getTeamById(Long id) {
