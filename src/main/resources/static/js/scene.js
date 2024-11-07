@@ -1,45 +1,43 @@
 class game extends Phaser.Scene {
-    constructor() {
+    constructor(ws,playersList) {
         super("gameMap");
         this.cursors = null;
         this.currentPlayer = null;
         this.playerId = null;
         this.bandera1 = null;
         this.bandera2 = null;
+        this.playersList = playersList;
+        this.ws=ws;
         this.getplayer();
     }
+    
+    preload() {
+        this.load.image("textura", "../map/Textures-16.png");
+        this.load.tilemapTiledJSON("mapa", "../map/mapa.json");
+        this.load.image("banderaAzul", "../images/banderaAzul.png");
+        this.load.image("banderaNaranja", "../images/banderaNaranja.png");
+        this.load.spritesheet("player", this.currentPlayer.path, { frameWidth: 128, frameHeight: 128 });
 
+    }
     getplayer() {
         const currentUrl = window.location.href;
         const url = new URL(currentUrl);
         const params = new URLSearchParams(url.search);
         const id = params.get('id');
 
-        if (!id) {
-            console.error("ID no encontrado en la URL");
-            return;
-        }
-
-        return new Promise((resolve, reject) => {
-            apiclient.getPlayerById(id, (data) => {
-                this.currentPlayer = data;
-                this.playerId = data.id;
-                this.load.spritesheet("player", this.currentPlayer.path, { frameWidth: 128, frameHeight: 128 });
-
-                resolve();
-            });
+        this.playersList.forEach(player => {
+            if(player.id == id){
+                this.currentPlayer = player;
+            }
+            
         });
     }
 
-    preload() {
-        this.load.image("textura", "../map/Textures-16.png");
-        this.load.tilemapTiledJSON("mapa", "../map/mapa.json");
-        this.load.image("banderaAzul", "../images/banderaAzul.png");
-        this.load.image("banderaNaranja", "../images/banderaNaranja.png");
-    }
-
     async create() {
-        await this.getplayer();
+        console.log(this.ws)
+        console.log(this.playersList)
+
+
         this.cursors = this.input.keyboard.createCursorKeys();
 
         // Animaciones
@@ -64,6 +62,8 @@ class game extends Phaser.Scene {
         fondo.setCollisionByProperty({ colision: true });
 
         // Crear jugador
+
+
         if (this.currentPlayer.path == "../images/playerA.png") {
             this.player = this.physics.add.sprite(200, 200, "player");
             this.player.setCollideWorldBounds(true);
@@ -77,6 +77,7 @@ class game extends Phaser.Scene {
             this.player.setSize(30, 80);
             this.player.setOffset(36, 47);
         }
+
 
         // Banderas
         this.bandera1 = this.physics.add.sprite(1280, 950, 'banderaAzul').setScale(0.3).setSize(100, 100);
@@ -92,22 +93,19 @@ class game extends Phaser.Scene {
         }
 
         // Conectar al servidor WebSocket
-        this.connectToWebSocket();
+        //this.connectToWebSocket();
     }
 
-    connectToWebSocket() {
-        this.ws = new WebSocket('ws://localhost:8081');
+     connectToWebSocket() {
+    //     this.ws = new WebSocket('ws://localhost:8081');
 
         this.ws.onopen = () => {
             console.log('Conectado al servidor de WebSocket');
-
-            // Unirse a una sala al momento de la conexión (por ejemplo, una sala con código 'abc123')
-            this.joinRoom('abc123');  
         };
 
         this.ws.onmessage = (event) => {
             const data = JSON.parse(event.data);
-            console.log('Mensaje del servidor:', data);
+            //console.log('Mensaje del servidor:', data);
 
             switch (data.type) {
                 case 'updatePosition':
@@ -122,18 +120,20 @@ class game extends Phaser.Scene {
         this.ws.onclose = () => {
             console.log('Desconectado del servidor WebSocket');
         };
-    }
+     }
 
-    // Método para unirse a una sala
-    joinRoom(roomCode) {
-        const joinMessage = {
-            type: 'joinRoom', 
-            code: roomCode, 
-            playerId: this.playerId
-        };
+    // // Método para unirse a una sala
+    // joinRoom(roomCode) {
+    //     const joinMessage = {
+    //         type: 'joinRoom', 
+    //         code: roomCode, 
+    //         playerId: this.playerId,
+    //         position : {x : this.player.x, y: this.player.y},
+    //         path : this.currentPlayer.path
+    //     };
         
-        this.ws.send(JSON.stringify(joinMessage));
-    }
+    //     this.ws.send(JSON.stringify(joinMessage));
+    //}
 
     update() {
         if (!this.cursors) return;
@@ -189,5 +189,47 @@ class game extends Phaser.Scene {
             console.error("ID del jugador no encontrado.");
         }
     }
+    renderPlayers() {
+        console.log(this.playersList)
+        this.playersList.forEach(player => {
+            console.log(player)
+            console.log(currentPlayer)
+            if (player.id !== this.currentPlayer.id) {
+                this.renderPlayer(player);
+                
+            }
+
+            
+        });
+    }
+    renderPlayer(player) {
+        const xPosition =player.position.x
+        const yPosition =player.position.y
+        console.log(player)
+
+        this.load.spritesheet("playeradd", player.path, { frameWidth: 128, frameHeight: 128 });
+
+
+        if (player.path == "../images/playerA.png") {
+            this.player = this.physics.add.sprite(xPosition, yPosition, "playeradd");
+            this.player.setCollideWorldBounds(true);
+            this.player.setScale(1);
+            this.player.setSize(30, 80);
+            this.player.setOffset(50, 47);
+        } else {
+            this.player = this.physics.add.sprite(xPosition, yPosition, "playeradd");
+            this.player.setCollideWorldBounds(true);
+            this.player.setScale(1);
+            this.player.setSize(30, 80);
+            this.player.setOffset(36, 47);
+        }
+
+
+        // Lógica para mostrar un jugador en la pantalla
+        console.log(`Renderizando jugador ${player.id}`);
+        // Aquí deberías agregar la lógica gráfica para mostrar al jugador en la posición inicial
+    }
 
 }
+
+    

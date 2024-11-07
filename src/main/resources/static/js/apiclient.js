@@ -25,29 +25,30 @@ var apiclient = (function () {
                 console.error("Error al obtener jugadores:", error);
             });
         },
-        renderPlayers: function (players) {
-            const playersList = $('#players-list'); 
-            playersList.empty(); // Limpia el contenido existente
+        // // on lobby
+        // renderPlayers: function (players) {
+        //     const playersList = $('#players-list'); 
+        //     playersList.empty(); // Limpia el contenido existente
         
-            this.getTeamById("1", (teamA) => {
-                playersList.append(`<h1>Equipo A</h1>`);
-                //playersList.append(`<table border="1"><tr><th>Jugador</th></tr>`);
-                teamA.players.forEach(player => {
-                    playersList.append(`<tr><td>${player.name}</td></tr>`);
-                });
-                playersList.append(`</table>`);
+        //     this.getTeamById("1", (teamA) => {
+        //         playersList.append(`<h1>Equipo A</h1>`);
+        //         //playersList.append(`<table border="1"><tr><th>Jugador</th></tr>`);
+        //         teamA.players.forEach(player => {
+        //             playersList.append(`<tr><td>${player.name}</td></tr>`);
+        //         });
+        //         playersList.append(`</table>`);
         
-                // Después de renderizar Equipo A, obtener y renderizar los jugadores de Equipo B
-                this.getTeamById("2", (teamB) => {
-                    playersList.append(`<h1>Equipo B</h1>`);
-                    //playersList.append(`<table border="1"><tr><th>Jugador</th></tr>`);
-                    teamB.players.forEach(player => {
-                        playersList.append(`<tr><td>${player.name}</td></tr>`);
-                    });
-                    playersList.append(`</table>`);
-                });
-            });
-        },
+        //         // Después de renderizar Equipo A, obtener y renderizar los jugadores de Equipo B
+        //         this.getTeamById("2", (teamB) => {
+        //             playersList.append(`<h1>Equipo B</h1>`);
+        //             //playersList.append(`<table border="1"><tr><th>Jugador</th></tr>`);
+        //             teamB.players.forEach(player => {
+        //                 playersList.append(`<tr><td>${player.name}</td></tr>`);
+        //             });
+        //             playersList.append(`</table>`);
+        //         });
+        //     });
+        // },
 
         createTeams: function (name,imagenPath,callback) {
             const teamData = {
@@ -112,11 +113,12 @@ var apiclient = (function () {
     };
     
 })();
+
 $(document).ready(function () {
     const currentPage = window.location.pathname;
-    if (currentPage === '/lobby') {
-        apiclient.renderPlayers(); // Usar `renderPlayers` como callback
-    }
+    // if (currentPage === '/lobby') {
+    //     apiclient.renderPlayers(); // Usar `renderPlayers` como callback
+    // }
     if (currentPage === '/') {
 
         apiclient.getTeamByName("EquipoA", function(teamA) {
