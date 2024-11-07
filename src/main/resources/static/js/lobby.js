@@ -112,6 +112,7 @@ var lobby = (function () {
 
         // Renderizar la lista de jugadores por equipo en el lobby
         renderPlayers() {
+            console.log(players+ "aqui es lobby");  
             const playersList = $('#players-list'); 
             playersList.empty();
 
