@@ -9,9 +9,12 @@ class game extends Phaser.Scene {
         this.playersList = playersList;
         this.ws=ws;
         this.getplayer();
+        
+
     }
     
     preload() {
+        console.log(this.playersList)
         this.load.image("textura", "../map/Textures-16.png");
         this.load.tilemapTiledJSON("mapa", "../map/mapa.json");
         this.load.image("banderaAzul", "../images/banderaAzul.png");
@@ -34,8 +37,7 @@ class game extends Phaser.Scene {
     }
 
     async create() {
-        console.log(this.ws)
-        console.log(this.playersList)
+  
 
 
         this.cursors = this.input.keyboard.createCursorKeys();
@@ -93,24 +95,30 @@ class game extends Phaser.Scene {
         }
 
         // Conectar al servidor WebSocket
-        //this.connectToWebSocket();
+        this.connectToWebSocket();
     }
 
      connectToWebSocket() {
-    //     this.ws = new WebSocket('ws://localhost:8081');
-
         this.ws.onopen = () => {
             console.log('Conectado al servidor de WebSocket');
+
+            
         };
 
         this.ws.onmessage = (event) => {
             const data = JSON.parse(event.data);
-            //console.log('Mensaje del servidor:', data);
+            
 
             switch (data.type) {
+                case 'startGame':
+                    this.playersList = data.playersList;
+                    console.log("esta es la lista con los jugadores")
+                    console.log(this.playersList)
+                    break;
                 case 'updatePosition':
                     this.updateOtherPlayerPosition(data);
                     break;
+                
                 case 'flagCaptured':
                     actualizarPuntuaciones();
                     break;
@@ -120,20 +128,25 @@ class game extends Phaser.Scene {
         this.ws.onclose = () => {
             console.log('Desconectado del servidor WebSocket');
         };
-     }
-
-    // // Método para unirse a una sala
-    // joinRoom(roomCode) {
-    //     const joinMessage = {
-    //         type: 'joinRoom', 
-    //         code: roomCode, 
-    //         playerId: this.playerId,
-    //         position : {x : this.player.x, y: this.player.y},
-    //         path : this.currentPlayer.path
-    //     };
+    }
+    sendStartGameMessage(){
+        console.log(this.ws.readyState);
         
-    //     this.ws.send(JSON.stringify(joinMessage));
-    //}
+        if (this.ws.readyState === WebSocket.OPEN) {
+            const joinMessage = {
+                type: 'startGame',
+            };
+            
+
+            this.ws.send(JSON.stringify(joinMessage));
+            console.log("Mensaje 'startGame' enviado.");
+        } else {
+            console.error("WebSocket no está abierto");
+        }
+        console.log(this.playersList)
+
+    }
+
 
     update() {
         if (!this.cursors) return;
@@ -231,5 +244,4 @@ class game extends Phaser.Scene {
     }
 
 }
-
     

@@ -1,16 +1,32 @@
  const WebSocket = require('ws');
 const MAX_PLAYERS_PER_ROOM = 8;
 const rooms = {};
-const COUNTDOWN_SECONDS = 120;
+const COUNTDOWN_SECONDS = 10;
 
 // Crear un servidor WebSocket en el puerto 8080
 const wss = new WebSocket.Server({ port: 8081 });
 wss.on('connection', (ws) => {
-    console.log('Nuevo jugador conectado');
+    console.log("jugador conectado")
 
     ws.on('message', (message) => {
         const data = JSON.parse(message);
         switch (data.type) {
+            case 'startGame':
+            
+
+                //esto toca cambiarlo amas a futuro
+                 rooms.abc123.players.forEach(player => {
+                    console.log("esto es el room que estoy enviando a;")
+                    console.log(player)
+                    console.log("-----------------------------------")
+                    console.log(rooms.abc123.players)
+                     player.ws.send(JSON.stringify({
+                         type: 'startGame',
+                        playersList: rooms.abc123.players
+                     }));
+                
+             });
+                break
             case 'joinRoom':
                 const roomName = data.code;
                 if (!rooms[roomName]) {
@@ -19,7 +35,6 @@ wss.on('connection', (ws) => {
                         countdown: COUNTDOWN_SECONDS, 
                         interval: null
                     };
-                    console.log(`Se ha creado la sala: ${roomName}`);
 
                     rooms[roomName].interval = setInterval(() => {
                         rooms[roomName].countdown--;
@@ -80,7 +95,6 @@ wss.on('connection', (ws) => {
                         }));
                     
                 });
-                console.log('Jugadores en la sala:', rooms[roomName].players);
                 break;
         }
     });

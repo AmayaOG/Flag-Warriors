@@ -13,7 +13,7 @@ var lobby = (function () {
 
             return new Promise((resolve, reject) => {
                 ws.onopen = async () => {
-                    console.log('Conectado al servidor de WebSocket');
+                    //console.log('Conectado al servidor de WebSocket');
                     await this.getPlayer();
                     this.joinRoom('abc123'); 
                     resolve(); // Resuelve cuando la conexión esté lista
@@ -26,6 +26,8 @@ var lobby = (function () {
                         case 'newPlayer':
                             players = data.players; // Actualiza la lista global de jugadores
                             this.renderPlayers();
+                            console.log("desde jugador nuevo:")
+                            console.log(players)
                             break;
                         case 'countdown':
                             console.log(data.countdown);
@@ -84,7 +86,6 @@ var lobby = (function () {
             
             
             ws.send(JSON.stringify(joinMessage));
-            console.log(players)
         },
 
         // Obtener datos del jugador
