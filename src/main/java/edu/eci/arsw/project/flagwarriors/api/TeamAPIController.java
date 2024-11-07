@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -26,6 +27,7 @@ public class TeamAPIController {
     @Autowired
     private TeamService teamService;
 
+    @CrossOrigin(origins = "https://flag-warriors-backend.onrender.com")  // Permite solicitudes solo desde este origen
     @GetMapping
     public ResponseEntity<List<Team>> getAllTeams() {  // Cambiar el nombre del método
         List<Team> teams = teamService.getAllteams();
@@ -33,12 +35,14 @@ public class TeamAPIController {
     }
 
 
+    @CrossOrigin(origins = "https://flag-warriors-backend.onrender.com")
     @PostMapping
     public ResponseEntity<Team> createTeam(@RequestBody Team team) {
         
         return new ResponseEntity<>(teamService.saveTeam(team), HttpStatus.CREATED);
     }
 
+    @CrossOrigin(origins = "https://flag-warriors-backend.onrender.com")
     @GetMapping("/name/{name}")
     public ResponseEntity<Team> getTeam(@PathVariable String name) {
         Team team = teamService.getTeamByName(name);
@@ -49,6 +53,7 @@ public class TeamAPIController {
         }
     }
 
+    @CrossOrigin(origins = "https://flag-warriors-backend.onrender.com")
     @GetMapping("/{id}")
     public ResponseEntity<Team> getTeamById(@PathVariable Long id) {
         Team team = teamService.getTeamById(id);

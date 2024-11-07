@@ -17,7 +17,8 @@ public class PlayerAPIController {
     @Autowired
     private PlayerService playerService;
 
-
+    
+    @CrossOrigin(origins = "https://flag-warriors-backend.onrender.com")  // Permite solicitudes solo desde este origen
     @PostMapping
     public ResponseEntity<?> createPlayer(@RequestBody Player player) {
         if (player.getName() == null || player.getName().isEmpty()) {
@@ -34,7 +35,7 @@ public class PlayerAPIController {
 
 
     
-    
+    @CrossOrigin(origins = "https://flag-warriors-backend.onrender.com")  // Permite solicitudes solo desde este origen
     @GetMapping("/{id}")
     public ResponseEntity<Player> getPlayerbyId(@PathVariable long id) {
         Player player = playerService.getPlayerById(id);
@@ -45,6 +46,7 @@ public class PlayerAPIController {
         }
     }
 
+    @CrossOrigin(origins = "https://flag-warriors-backend.onrender.com")  // Permite solicitudes solo desde este origen
     @PostMapping("/{id}/capture-flag")
     public ResponseEntity<?> captureFlag(@PathVariable Long id) {
         Player player = playerService.getPlayerById(id);
@@ -63,6 +65,7 @@ public class PlayerAPIController {
 
     }
     
+    @CrossOrigin(origins = "https://flag-warriors-backend.onrender.com")  // Permite solicitudes solo desde este origen
     @GetMapping
     public ResponseEntity<List<Player>> getAllPlayers() {
         List<Player> players = playerService.getAllPlayers();
