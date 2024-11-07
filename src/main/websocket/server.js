@@ -12,14 +12,19 @@ wss.on('connection', (ws) => {
         const data = JSON.parse(message);
         switch (data.type) {
             case 'startGame':
-            
+                console.log("esta es la lista de jugadores en la sala")
+                console.log("-----------------------------------")
+                console.log(rooms.abc123.players)
 
                 //esto toca cambiarlo amas a futuro
                  rooms.abc123.players.forEach(player => {
-                    console.log("esto es el room que estoy enviando a;")
-                    console.log(player)
+                    console.log("y esa lista se le esta enviando a este jugador:")
                     console.log("-----------------------------------")
-                    console.log(rooms.abc123.players)
+
+                    console.log(player)
+
+
+                    
                      player.ws.send(JSON.stringify({
                          type: 'startGame',
                         playersList: rooms.abc123.players
@@ -38,11 +43,19 @@ wss.on('connection', (ws) => {
 
                     rooms[roomName].interval = setInterval(() => {
                         rooms[roomName].countdown--;
+
+                        // Convertir los segundos restantes a minutos y segundos
+                        const minutes = Math.floor(rooms[roomName].countdown / 60);
+                        const seconds = rooms[roomName].countdown % 60;
+
+                        // Formatear el tiempo en "mm:ss"
+                        const formattedTime = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+
                         // Enviar el tiempo restante a todos los jugadores en la sala
                         rooms[roomName].players.forEach((player) => {
                             player.ws.send(JSON.stringify({
                                 type: 'countdown',
-                                countdown: rooms[roomName].countdown
+                                countdown: formattedTime // Enviar el tiempo en formato "mm:ss"
                             }));
                         });
 

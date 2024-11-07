@@ -7,7 +7,12 @@ var lobby = (function () {
     var countdownTimer = null;
 
 
-    return { 
+    return {
+        async getImfo(){
+            console.log("imprimo esto:")
+            console.log(players)
+            return players
+        },
         async connectToWebSocket() {
             ws = new WebSocket('ws://localhost:8081'); // Asigna directamente a `ws` global
 
@@ -30,7 +35,6 @@ var lobby = (function () {
                             console.log(players)
                             break;
                         case 'countdown':
-                            console.log(data.countdown);
                             this.updateCountdown(data.countdown);
                             break;
                         case 'startToPlay':
@@ -58,7 +62,7 @@ var lobby = (function () {
             window.location.href = `/game?id=${id}`;
         },
         updateCountdown(countdown) {
-            $('#countdown-display').text(`Tiempo restante: ${countdown} segundos`);
+            $('#countdown-display').text(`Tiempo restante: ${countdown}`); // countdown ya viene en formato "mm:ss"
         },
 
         // Método para unirse a una sala
@@ -112,31 +116,44 @@ var lobby = (function () {
 
         // Renderizar la lista de jugadores por equipo en el lobby
         renderPlayers() {
-            const playersList = $('#players-list'); 
+            const playersList = $('#players-list');
+            
             playersList.empty();
 
             // Filtrar y renderizar jugadores por equipos
             const teamA = players.filter(player => player.team === 'A');
             const teamB = players.filter(player => player.team === 'B');
+            playersList.append(`<div class="teamA"id="teamA"> <div class="banderaA" id="banderaA"></div> <div class="contenidoA" id="contenidoA"></div> <div class="personajeA" id="personajeA"></div>  </div> `)
+            playersList.append(`<div class="teamB"id="teamB"> <div class="banderaB" id="banderaB"></div> <div class="contenidoB" id="contenidoB"></div> <div class="personajeB" id="personajeB"></div>  </div>`)
+
+            const playersListA = $('#contenidoA');
+            const playersListB = $('#contenidoB'); 
+
+            const banderaA = $('#banderaA');
+            const banderaB = $('#banderaB');
+
+            banderaA.append(`<img class="imagenA"src="/images/banderaNaranja.png" alt="">`)
+            banderaB.append(`<img class="imagenB"src="/images/banderaAzul.png" alt="">`)
+
 
             // Renderizar Equipo A
-            playersList.append(`<h1>Equipo A</h1>`);
+            playersListA.append(`<h3>Equipo A</h3>`);
             if (teamA.length > 0) {
                 teamA.forEach(player => {
-                    playersList.append(`<tr><td>${player.name}</td></tr>`);
+                    playersListA.append(`<tr><td>${player.name}</td></tr>`);
                 });
             } else {
-                playersList.append('<p>No hay jugadores en el Equipo A</p>');
+                playersListA.append('<p>No hay jugadores en el Equipo A</p>');
             }
 
             // Renderizar Equipo B
-            playersList.append(`<h1>Equipo B</h1>`);
+            playersListB.append(`<h3>Equipo B</h3>`);
             if (teamB.length > 0) {
                 teamB.forEach(player => {
-                    playersList.append(`<tr><td>${player.name}</td></tr>`);
+                    playersListB.append(`<tr><td>${player.name}</td></tr>`);
                 });
             } else {
-                playersList.append('<p>No hay jugadores en el Equipo B</p>');
+                playersListB.append('<p>No hay jugadores en el Equipo B</p>');
             }
         }
     };

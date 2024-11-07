@@ -6,6 +6,7 @@ import { ws, players, lobby } from './lobby.js';
 // Espera a que la conexión WebSocket esté lista antes de inicializar la escena
 lobby.connectToWebSocket().then(() => {
     // Ahora que ws y players están disponibles, puedes inicializar la escena
+    lobby.getImfo()
     const gameScene = new game(ws, players);
 
     var config = {

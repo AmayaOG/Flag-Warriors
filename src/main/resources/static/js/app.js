@@ -15,7 +15,7 @@ var app = (function () {
         
                 // Ahora puedes usar el jugador con su ID como referencia
                 apiclient.getAllPlayers(function(players) {
-                    if (players.length >= 8) { 
+                    if (players.length > 8) { 
                         window.location.href = "/error"; 
                     } else {
                         window.location.href = `/lobby?id=${createdPlayer.id}`; 

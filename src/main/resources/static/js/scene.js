@@ -1,4 +1,6 @@
+
 class game extends Phaser.Scene {
+    
     constructor(ws,playersList) {
         super("gameMap");
         this.cursors = null;
@@ -9,12 +11,11 @@ class game extends Phaser.Scene {
         this.playersList = playersList;
         this.ws=ws;
         this.getplayer();
-        
-
+        this.sendStartGameMessage()
     }
     
     preload() {
-        console.log(this.playersList)
+
         this.load.image("textura", "../map/Textures-16.png");
         this.load.tilemapTiledJSON("mapa", "../map/mapa.json");
         this.load.image("banderaAzul", "../images/banderaAzul.png");
@@ -34,7 +35,8 @@ class game extends Phaser.Scene {
             }
             
         });
-    }
+        this.playerId = this.currentPlayer.id   }
+    
 
     async create() {
   
@@ -215,6 +217,7 @@ class game extends Phaser.Scene {
             
         });
     }
+    
     renderPlayer(player) {
         const xPosition =player.position.x
         const yPosition =player.position.y
