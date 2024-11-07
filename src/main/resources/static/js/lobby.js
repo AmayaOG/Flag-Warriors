@@ -4,6 +4,8 @@ export var ws = null; // WebSocket globalmente accesible
 
 var lobby = (function () { 
     var currentPlayer = null;
+    var countdownTimer = null;
+
 
     return { 
         async connectToWebSocket() {
@@ -24,8 +26,12 @@ var lobby = (function () {
                         case 'newPlayer':
                             players = data.players; // Actualiza la lista global de jugadores
                             this.renderPlayers();
-                            console.log(players);
                             break;
+                        case 'countdown':
+                            console.log(data.countdown);
+                            this.updateCountdown(data.countdown);
+                            break;
+
                     }
                 };
 
@@ -38,6 +44,9 @@ var lobby = (function () {
                     reject(error); // Rechaza si hay un error
                 };
             });
+        },
+        updateCountdown(countdown) {
+            $('#countdown-display').text(`Tiempo restante: ${countdown} segundos`);
         },
 
         // Método para unirse a una sala
@@ -65,7 +74,6 @@ var lobby = (function () {
             
             
             ws.send(JSON.stringify(joinMessage));
-            this.renderPlayers();
             console.log(players)
         },
 
