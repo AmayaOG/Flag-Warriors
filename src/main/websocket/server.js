@@ -31,9 +31,15 @@ wss.on('connection', (ws) => {
                             }));
                         });
 
-                        // Detener el temporizador cuando llega a 0
+                        // Detener el temporizador cuando llega a 0 y notificar a los jugadores
                         if (rooms[roomName].countdown <= 0) {
                             clearInterval(rooms[roomName].interval);
+                            rooms[roomName].players.forEach((player) => {
+                                player.ws.send(JSON.stringify({
+                                    type: 'startToPlay',
+                                    message: 'Tiempo terminado'
+                                }));
+                            });
                         }
                     }, 1000);
 
@@ -41,6 +47,12 @@ wss.on('connection', (ws) => {
 
                 if (rooms[roomName].players.length >= MAX_PLAYERS_PER_ROOM) {
                     ws.send(JSON.stringify({ type: 'lobbyFull' }));
+                    rooms[roomName].players.forEach(player => {
+                        player.ws.send(JSON.stringify({
+                            type: 'startToPlay',
+                            message: 'Lobby lleno'
+                        }));
+                    });
                     return;
                 }
 

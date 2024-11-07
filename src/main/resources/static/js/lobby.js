@@ -31,6 +31,9 @@ var lobby = (function () {
                             console.log(data.countdown);
                             this.updateCountdown(data.countdown);
                             break;
+                        case 'startToPlay':
+                            this.goToGame()
+                        break;
 
                     }
                 };
@@ -44,6 +47,13 @@ var lobby = (function () {
                     reject(error); // Rechaza si hay un error
                 };
             });
+        },
+        goToGame() {
+            const currentUrl = window.location.href;
+            const url = new URL(currentUrl);
+            const params = new URLSearchParams(url.search);
+            const id = params.get('id');
+            window.location.href = `/game?id=${id}`;
         },
         updateCountdown(countdown) {
             $('#countdown-display').text(`Tiempo restante: ${countdown} segundos`);
