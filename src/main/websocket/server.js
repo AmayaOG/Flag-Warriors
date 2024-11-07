@@ -32,32 +32,20 @@ wss.on('connection', (ws) => {
                     team : data.team
                 };
 
-                console.log(newPlayer )
-
-                // Agregar jugador a la sala
-                if(rooms[roomName].players.length == 0){
+                const playerExists = rooms[roomName].players.some(player => player.id === newPlayer.id);
+                if (!playerExists) {
                     rooms[roomName].players.push(newPlayer)
-                }else{
-                    rooms[roomName].players.forEach(player => {
-                        console.log(`este es el jugador de la lista que se va a analizar ${player}`)
-                        if (player.id != newPlayer.id || rooms[roomName].players ==0  ) {
-                            rooms[roomName].players.push(newPlayer);
-                            ws.send(JSON.stringify({ type: 'joinedRoom', roomName: roomName,players: rooms[roomName].players }));
-                        }
-                    });
+                    console.log(`Jugador ${newPlayer.name} añadido a la sala: ${roomName}`);
+
                 }
                 
-                
-                
-                
                 rooms[roomName].players.forEach(player => {
-                    if (player.id != newPlayer.id || rooms[roomName].players.length==1 ) {
                         ws.send(JSON.stringify({
                             type: 'newPlayer',
                             player: newPlayer,
                             players: rooms[roomName].players
                         }));
-                    }
+                    
                 });
                 console.log('Jugadores en la sala:', rooms[roomName].players);
                 break;
