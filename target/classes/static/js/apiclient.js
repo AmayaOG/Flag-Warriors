@@ -1,5 +1,5 @@
 var apiclient = (function () {
-    var apiUrl = "http://localhost:8080/api";
+    var apiUrl = "http://https://flag-warriors-backend.onrender.com/api";
 
     return {
 
