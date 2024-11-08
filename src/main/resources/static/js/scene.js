@@ -18,14 +18,28 @@ class game extends Phaser.Scene {
         this.load.tilemapTiledJSON("mapa", "../map/mapa.json");
         this.load.image("banderaAzul", "../images/banderaAzul.png");
         this.load.image("banderaNaranja", "../images/banderaNaranja.png");
-        // this.load.spritesheet("player", this.currentPlayer.path, { frameWidth: 128, frameHeight: 128 });
 
+    }
+    initianValues(){
+        this.playersList.forEach(player => {
+            if (player.id == this.playerId) {
+                this.currentPlayer=player;
+            }
+        });
+        console.log("este es el currentPlayer")
+        console.log(this.currentPlayer)
+        this.load.spritesheet("player", this.currentPlayer.path, { frameWidth: 128, frameHeight: 128 });
+
+        
     }
     connectToWebSocket(){
         const currentUrl = window.location.href;
         const url = new URL(currentUrl);
         const params = new URLSearchParams(url.search);
         const id = params.get('id');
+        this.playerId = id;
+        console.log("este es el id antes de hacer la coneccion")
+        console.log(this.playerId)
         this.sceneWs =new WebSocket(`ws://localhost:8081?sessionId=${id}`)
 
         this.sceneWs.onopen = async () => {
@@ -39,8 +53,12 @@ class game extends Phaser.Scene {
                     switch (data.type) {
                         case 'startGame':
                             this.playersList = data.playersList;
-                            console.log("esta es la lista con los jugadores")
-                            console.log(this.playersList)
+                            console.log(`se acgtualizo el playerList ${this.playersList} y este es el id de la sesion ${this.playerId}`)
+                            this.initianValues()
+                            this.renderPlayers
+                            //this.playersList = data.playersList;
+                            //console.log("esta es la lista con los jugadores")
+                            //console.log(this.playersList)
                             break;
                         case 'updatePosition':
                             this.updateOtherPlayerPosition(data);
@@ -123,7 +141,6 @@ class game extends Phaser.Scene {
     
 
     sendStartGameMessage(){
-            console.log(this.sceneWs.readyState)
             const startMessage = {
                 type: 'startGame',
             };   
@@ -137,26 +154,26 @@ class game extends Phaser.Scene {
         if (!this.cursors) return;
 
         // Movimiento del jugador (esto aún no se actualiza en el servidor)
-        if (this.cursors.right.isDown) {
-            this.player.setVelocityX(150);
-            this.player.anims.play("caminar", true);
-            this.player.flipX = false;
-        } else if (this.cursors.left.isDown) {
-            this.player.setVelocityX(-150);
-            this.player.anims.play("caminar", true);
-            this.player.flipX = true;
-        } else if (this.cursors.up.isDown) {
-            this.player.setVelocityY(-150);
-            this.player.anims.play("caminar", true);
-        } else if (this.cursors.down.isDown) {
-            this.player.setVelocityY(150);
-            this.player.anims.play("caminar", true);
-        } else {
-            this.player.setVelocityX(0);
-            this.player.setVelocityY(0);
-            this.player.anims.play("quieto", true);
-        }
-    }
+    //     if (this.cursors.right.isDown) {
+    //         this.player.setVelocityX(150);
+    //         this.player.anims.play("caminar", true);
+    //         this.player.flipX = false;
+    //     } else if (this.cursors.left.isDown) {
+    //         this.player.setVelocityX(-150);
+    //         this.player.anims.play("caminar", true);
+    //         this.player.flipX = true;
+    //     } else if (this.cursors.up.isDown) {
+    //         this.player.setVelocityY(-150);
+    //         this.player.anims.play("caminar", true);
+    //     } else if (this.cursors.down.isDown) {
+    //         this.player.setVelocityY(150);
+    //         this.player.anims.play("caminar", true);
+    //     } else {
+    //         this.player.setVelocityX(0);
+    //         this.player.setVelocityY(0);
+    //         this.player.anims.play("quieto", true);
+    //     }
+     }
 
     updateOtherPlayerPosition(data) {
         // Aquí puedes implementar la lógica para actualizar la posición de otros jugadores
@@ -188,39 +205,29 @@ class game extends Phaser.Scene {
         }
     }
     renderPlayers() {
-        console.log(this.playersList)
         this.playersList.forEach(player => {
-            console.log(player)
-            console.log(currentPlayer)
-            if (player.id !== this.currentPlayer.id) {
                 this.renderPlayer(player);
-                
-            }
-
-            
         });
     }
     
     renderPlayer(player) {
-        const xPosition =player.position.x
-        const yPosition =player.position.y
-        console.log(player)
-
+        // const xPosition =player.position.x
+        // const yPosition =player.position.y
         this.load.spritesheet("playeradd", player.path, { frameWidth: 128, frameHeight: 128 });
 
 
         if (player.path == "../images/playerA.png") {
-            this.player = this.physics.add.sprite(xPosition, yPosition, "playeradd");
-            this.player.setCollideWorldBounds(true);
-            this.player.setScale(1);
-            this.player.setSize(30, 80);
-            this.player.setOffset(50, 47);
+            this.playeradd = this.physics.add.sprite(200,200, "playeradd");
+            this.playeradd.setCollideWorldBounds(true);
+            this.playeradd.setScale(1);
+            this.playeradd.setSize(30, 80);
+            this.playeradd.setOffset(50, 47);
         } else {
-            this.player = this.physics.add.sprite(xPosition, yPosition, "playeradd");
-            this.player.setCollideWorldBounds(true);
-            this.player.setScale(1);
-            this.player.setSize(30, 80);
-            this.player.setOffset(36, 47);
+            this.playeradd = this.physics.add.sprite(1300, 800, "playeradd");
+            this.playeradd.setCollideWorldBounds(true);
+            this.playeradd.setScale(1);
+            this.playeradd.setSize(30, 80);
+            this.playeradd.setOffset(36, 47);
         }
 
 
