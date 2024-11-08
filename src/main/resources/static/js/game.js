@@ -1,13 +1,13 @@
 
-import { ws, players, lobby } from './lobby.js';
+import { lobbyWs, players, lobby } from './lobby.js';
 
 
 
 // Espera a que la conexión WebSocket esté lista antes de inicializar la escena
 lobby.connectToWebSocket().then(() => {
     // Ahora que ws y players están disponibles, puedes inicializar la escena
-    lobby.getImfo()
-    const gameScene = new game(ws, players);
+    
+    const gameScene = new game(lobbyWs, players);
 
     var config = {
         type: Phaser.AUTO,

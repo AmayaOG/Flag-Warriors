@@ -1,12 +1,19 @@
- const WebSocket = require('ws');
+const WebSocket = require('ws');
 const MAX_PLAYERS_PER_ROOM = 8;
 const rooms = {};
-const COUNTDOWN_SECONDS = 10;
+const playesChannel = {};
+const COUNTDOWN_SECONDS = 45;
 
-// Crear un servidor WebSocket en el puerto 8080
+// Crear un servidor WebSocket en el puerto 8081
 const wss = new WebSocket.Server({ port: 8081 });
-wss.on('connection', (ws) => {
-    console.log("jugador conectado")
+wss.on('connection', (ws, req) => {
+    // Extraer el sessionId desde la URL
+    const url = new URL(req.url || '', `http://${req.headers.host}`);
+    const sessionId = url.searchParams.get('sessionId') || '';
+
+    console.log(`jugador conectado: ${sessionId}`);
+    // pushear
+    playesChannel[sessionId] = ws; // Almacenar el WebSocket con su sessionId
 
     ws.on('message', (message) => {
         const data = JSON.parse(message);
@@ -22,12 +29,12 @@ wss.on('connection', (ws) => {
                     console.log("-----------------------------------")
 
                     console.log(player)
-
+                    player.currentWs.readyState
 
                     
-                     player.ws.send(JSON.stringify({
+                     player.currentWs.send(JSON.stringify({
                          type: 'startGame',
-                        playersList: rooms.abc123.players
+                        playersList: 'rooms.abc123.players'
                      }));
                 
              });
@@ -53,7 +60,7 @@ wss.on('connection', (ws) => {
 
                         // Enviar el tiempo restante a todos los jugadores en la sala
                         rooms[roomName].players.forEach((player) => {
-                            player.ws.send(JSON.stringify({
+                            playesChannel[player.id].send(JSON.stringify({
                                 type: 'countdown',
                                 countdown: formattedTime // Enviar el tiempo en formato "mm:ss"
                             }));
@@ -63,7 +70,7 @@ wss.on('connection', (ws) => {
                         if (rooms[roomName].countdown <= 0) {
                             clearInterval(rooms[roomName].interval);
                             rooms[roomName].players.forEach((player) => {
-                                player.ws.send(JSON.stringify({
+                                playesChannel[player.id].send(JSON.stringify({
                                     type: 'startToPlay',
                                     message: 'Tiempo terminado'
                                 }));
@@ -76,7 +83,7 @@ wss.on('connection', (ws) => {
                 if (rooms[roomName].players.length >= MAX_PLAYERS_PER_ROOM) {
                     ws.send(JSON.stringify({ type: 'lobbyFull' }));
                     rooms[roomName].players.forEach(player => {
-                        player.ws.send(JSON.stringify({
+                        playesChannel[player.id].send(JSON.stringify({
                             type: 'startToPlay',
                             message: 'Lobby lleno'
                         }));
@@ -89,25 +96,24 @@ wss.on('connection', (ws) => {
                     id: data.playerId,
                     name: data.name,
                     path: data.path,
-                    team : data.team,
-                    ws: ws
+                    team : data.team
                 };
 
+
+                // comunica a los demas jugadores sobre uno nuevo
                 const playerExists = rooms[roomName].players.some(player => player.id === newPlayer.id);
                 if (!playerExists) {
                     rooms[roomName].players.push(newPlayer)
-                    console.log(`Jugador ${newPlayer.name} añadido a la sala: ${roomName}`);
-
-                }
-                
-                rooms[roomName].players.forEach(player => {
-                        player.ws.send(JSON.stringify({
+                    rooms[roomName].players.forEach(player => {
+                        playesChannel[player.id].send(JSON.stringify({
                             type: 'newPlayer',
                             player: newPlayer,
                             players: rooms[roomName].players
                         }));
                     
-                });
+                    });
+                    console.log(`Jugador ${newPlayer.name} añadido a la sala: ${roomName}`);
+                }
                 break;
         }
     });

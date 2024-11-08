@@ -1,5 +1,7 @@
 package edu.eci.arsw.project.flagwarriors.model;
 
+import java.net.http.WebSocket;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.*;
@@ -29,6 +31,8 @@ public class Player {
 
     @Column(name = "path",nullable = true)
     private String path;
+    
+  
 
     public Player() {
     }
@@ -86,6 +90,5 @@ public class Player {
     
     public void setPath(String path) {
         this.path = path;
-    }
-    
+    } 
 }

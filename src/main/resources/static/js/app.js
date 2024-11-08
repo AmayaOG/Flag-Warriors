@@ -7,8 +7,7 @@ var app = (function () {
     return {
         createPlayer: function () {
             var nombre = document.getElementById("nombre").value;
-            
-            var player = { name: nombre, score: 0, flag: false };
+            var player = { name: nombre, score: 0, flag: false};
             apiclient.createPlayer(player, function (createdPlayer) {       
                 currentPlayer = createdPlayer;
                 console.log("Jugador creado y guardado:", currentPlayer.name, currentPlayer.id);

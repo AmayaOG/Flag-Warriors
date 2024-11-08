@@ -135,12 +135,11 @@ class game extends Phaser.Scene {
         console.log(this.ws.readyState);
         
         if (this.ws.readyState === WebSocket.OPEN) {
-            const joinMessage = {
+            const startMessage = {
                 type: 'startGame',
             };
             
-
-            this.ws.send(JSON.stringify(joinMessage));
+            this.ws.send(JSON.stringify(startMessage));
             console.log("Mensaje 'startGame' enviado.");
         } else {
             console.error("WebSocket no está abierto");

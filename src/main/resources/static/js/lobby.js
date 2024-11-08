@@ -1,6 +1,6 @@
 
 export var players = [];
-export var ws = null; // WebSocket globalmente accesible
+export var lobbyWs = null; // WebSocket globalmente accesible
 
 var lobby = (function () { 
     var currentPlayer = null;
@@ -8,23 +8,19 @@ var lobby = (function () {
 
 
     return {
-        async getImfo(){
-            console.log("imprimo esto:")
-            console.log(players)
-            return players
-        },
+      
         async connectToWebSocket() {
-            ws = new WebSocket('ws://localhost:8081'); // Asigna directamente a `ws` global
+            await this.getPlayer();
+            lobbyWs = new WebSocket(`ws://localhost:8081?sessionId=${currentPlayer.id}`)
 
             return new Promise((resolve, reject) => {
-                ws.onopen = async () => {
+                lobbyWs.onopen = async () => {
                     //console.log('Conectado al servidor de WebSocket');
-                    await this.getPlayer();
                     this.joinRoom('abc123'); 
                     resolve(); // Resuelve cuando la conexión esté lista
                 };
 
-                ws.onmessage = (event) => {
+                lobbyWs.onmessage = (event) => {
                     const data = JSON.parse(event.data);
                     // Procesa el mensaje del servidor según el tipo de evento recibido
                     switch (data.type) {
@@ -44,11 +40,11 @@ var lobby = (function () {
                     }
                 };
 
-                ws.onclose = () => {
+                lobbyWs.onclose = () => {
                     console.log('Desconectado del servidor WebSocket');
                 };
 
-                ws.onerror = (error) => {
+                lobbyWs.onerror = (error) => {
                     console.error('Error en WebSocket:', error);
                     reject(error); // Rechaza si hay un error
                 };
@@ -71,13 +67,6 @@ var lobby = (function () {
                 console.error("Jugador no encontrado.");
                 return;
             }
-            players.push({
-                id: currentPlayer.id,
-                name: currentPlayer.name,
-                path: currentPlayer.path,
-                team: (currentPlayer.path).charAt((currentPlayer.path).indexOf("player")+6)
-            });
-
             const joinMessage = {
                 type: 'joinRoom', 
                 code: roomCode, 
@@ -85,11 +74,10 @@ var lobby = (function () {
                 name: currentPlayer.name,
                 path: currentPlayer.path,
                 team: (currentPlayer.path).charAt((currentPlayer.path).indexOf("player")+6),
-                lista:players
             };
             
             
-            ws.send(JSON.stringify(joinMessage));
+            lobbyWs.send(JSON.stringify(joinMessage));
         },
 
         // Obtener datos del jugador
