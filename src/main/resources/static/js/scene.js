@@ -8,8 +8,10 @@ class game extends Phaser.Scene {
         this.bandera1 = null;
         this.bandera2 = null;
         this.playersList = null
+        this.oponentes =[];
         this.sceneWs=null;
         this.connectToWebSocket()
+        this.avatar=null
     }
     
     preload() {
@@ -20,18 +22,46 @@ class game extends Phaser.Scene {
         this.load.image("banderaNaranja", "../images/banderaNaranja.png");
 
     }
+     initializeGame() {
+        try {
+            console.log("Respuesta 'startGame' recibida, iniciando juego");
+
+            this.loadPlayersTextures();  // Cargar texturas de todos los jugadores
+            this.load.on('complete', () => { // Espera a que todas las texturas terminen de cargarse
+                console.log("Texturas cargadas, iniciando renderización de jugadores");
+                this.renderPlayers();  // Llamar a renderPlayers después de cargar texturas
+            });
+            this.load.start();  // Iniciar la carga
+
+        } catch (error) {
+            console.error("Error al recibir la respuesta de WebSocket", error);
+        }
+    }
+    loadPlayersTextures() {
+        this.playersList.forEach(player => {
+            if (player.id == this.currentPlayer.id) {
+                this.load.spritesheet("avatar", player.path, { frameWidth: 128, frameHeight: 128 });
+                console.log("Cargando textura para el jugador principal");
+            } else {
+                this.load.spritesheet("opponentPlayer", player.path, { frameWidth: 128, frameHeight: 128 });
+                console.log(`Cargando textura para oponente con ID: ${player.id}`);
+            }
+        });
+    }
+
     initianValues(){
         this.playersList.forEach(player => {
             if (player.id == this.playerId) {
                 this.currentPlayer=player;
             }
         });
-        this.load.spritesheet("player", this.currentPlayer.path, { frameWidth: 128, frameHeight: 128 });
-        this.renderPlayers()
+        console.log("se actualizo curretplayer")
+        //this.load.spritesheet("player", this.currentPlayer.path, { frameWidth: 128, frameHeight: 128 });
+        //this.renderPlayers()
 
         
     }
-    connectToWebSocket(){
+    async connectToWebSocket(){
         const currentUrl = window.location.href;
         const url = new URL(currentUrl);
         const params = new URLSearchParams(url.search);
@@ -41,21 +71,25 @@ class game extends Phaser.Scene {
         this.sceneWs =new WebSocket(`ws://localhost:8081?sessionId=${id}`)
 
         this.sceneWs.onopen = async () => {
+            
             console.log("coneccion en el scene Ws")
-            this.sendStartGameMessage()
+
+                this.sendStartGameMessage()
+
         };
         this.sceneWs.onmessage = (event) => {
                     const data = JSON.parse(event.data);
                     
         
                     switch (data.type) {
-                        case 'startGame':
-                            this.playersList = data.playersList;
-                            console.log(`se acgtualizo el playerList ${this.playersList} y este es el id de la sesion ${this.playerId}`)
-                            this.initianValues()
+                        //case 'startGame':
+                          //  this.playersList = data.playersList;
+                            
+                            
+
                             
                            
-                            break;
+                         //   break;
                         case 'updatePosition':
                             this.updateOtherPlayerPosition(data);
                             break;
@@ -79,19 +113,19 @@ class game extends Phaser.Scene {
 
         this.cursors = this.input.keyboard.createCursorKeys();
 
-        // Animaciones
-        this.anims.create({
-            key: "caminar",
-            frames: this.anims.generateFrameNumbers("player", { start: 1, end: 7 }),
-            frameRate: 10,
-            repeat: -1
-        });
-        this.anims.create({
-            key: "quieto",
-            frames: this.anims.generateFrameNumbers("player", { start: 0, end: 0 }),
-            frameRate: 10,
-            repeat: -1
-        });
+        // // Animaciones
+        // this.anims.create({
+        //     key: "caminar",
+        //     frames: this.anims.generateFrameNumbers("player", { start: 1, end: 7 }),
+        //     frameRate: 10,
+        //     repeat: -1
+        // });
+        // this.anims.create({
+        //     key: "quieto",
+        //     frames: this.anims.generateFrameNumbers("player", { start: 0, end: 0 }),
+        //     frameRate: 10,
+        //     repeat: -1
+        // });
 
         // Mapa
         var map = this.make.tilemap({ key: "mapa" });
@@ -110,111 +144,156 @@ class game extends Phaser.Scene {
         this.bandera1 = this.physics.add.sprite(1280, 950, 'banderaAzul').setScale(0.3).setSize(100, 100);
         this.bandera2 = this.physics.add.sprite(180, 120, 'banderaNaranja').setScale(0.3).setSize(100, 100);
 
-        // Colisiones
-        this.physics.add.collider(this.player, fondo);
+        // // Colisiones
+        // this.physics.add.collider(this.player, fondo);
 
-        if (this.currentPlayer.path == "../images/playerA.png") {
-            this.physics.add.overlap(this.player, this.bandera1, (player, flag) => this.collectFlag(player, flag), null, this);
-        } else {
-            this.physics.add.overlap(this.player, this.bandera2, (player, flag) => this.collectFlag(player, flag), null, this);
-        }
+        // if (this.currentPlayer.path == "../images/playerA.png") {
+        //     this.physics.add.overlap(this.player, this.bandera1, (player, flag) => this.collectFlag(player, flag), null, this);
+        // } else {
+        //     this.physics.add.overlap(this.player, this.bandera2, (player, flag) => this.collectFlag(player, flag), null, this);
+        // }
 
         
     }
 
     
 
-    sendStartGameMessage(){
-            const startMessage = {
-                type: 'startGame',
-            };   
-            this.sceneWs.send(JSON.stringify(startMessage));
+    async sendStartGameMessage(){
+        return new Promise((resolve, reject) => {
+            if (this.sceneWs.readyState === WebSocket.OPEN) {
+                const joinMessage = { type: 'startGame' };
+                this.sceneWs.send(JSON.stringify(joinMessage));
+                console.log("Mensaje 'startGame' enviado.");
 
+                this.sceneWs.onmessage = (event) => {
+                    const data = JSON.parse(event.data);
+                    if (data.type === 'startGame') {
+                        this.playersList = data.playersList;
+                        console.log(`se acgtualizo el playerList ${this.playersList} y este es el id de la sesion ${this.playerId}`)
+                        this.initianValues()
+                        this.initializeGame();
+
+                        resolve(data);
+                    }
+                };
+            } else {
+                console.error("WebSocket no está abierto");
+                reject("WebSocket no está abierto");
+            }
+        });
     }
 
 
-    update() {
-        if (!this.cursors) return;
+    // update() {
+    //     if (!this.cursors) return;
 
-        //Movimiento del jugador (esto aún no se actualiza en el servidor)
-        if (this.cursors.right.isDown) {
-            this.player.setVelocityX(150);
-            this.player.anims.play("caminar", true);
-            this.player.flipX = false;
-        } else if (this.cursors.left.isDown) {
-            this.player.setVelocityX(-150);
-            this.player.anims.play("caminar", true);
-            this.player.flipX = true;
-        } else if (this.cursors.up.isDown) {
-            this.player.setVelocityY(-150);
-            this.player.anims.play("caminar", true);
-        } else if (this.cursors.down.isDown) {
-            this.player.setVelocityY(150);
-            this.player.anims.play("caminar", true);
-        } else {
-            this.player.setVelocityX(0);
-            this.player.setVelocityY(0);
-            this.player.anims.play("quieto", true);
-        }
-     }
+    //     //Movimiento del jugador (esto aún no se actualiza en el servidor)
+    //     if (this.cursors.right.isDown) {
+    //         this.player.setVelocityX(150);
+    //         this.player.anims.play("caminar", true);
+    //         this.player.flipX = false;
+    //     } else if (this.cursors.left.isDown) {
+    //         this.player.setVelocityX(-150);
+    //         this.player.anims.play("caminar", true);
+    //         this.player.flipX = true;
+    //     } else if (this.cursors.up.isDown) {
+    //         this.player.setVelocityY(-150);
+    //         this.player.anims.play("caminar", true);
+    //     } else if (this.cursors.down.isDown) {
+    //         this.player.setVelocityY(150);
+    //         this.player.anims.play("caminar", true);
+    //     } else {
+    //         this.player.setVelocityX(0);
+    //         this.player.setVelocityY(0);
+    //         this.player.anims.play("quieto", true);
+    //     }
+    //  }
 
-    updateOtherPlayerPosition(data) {
-        // Aquí puedes implementar la lógica para actualizar la posición de otros jugadores
-        console.log(`Actualizar posición de otro jugador: ID=${data.id}, x=${data.x}, y=${data.y}`);
-    }
+    // updateOtherPlayerPosition(data) {
+    //     // Aquí puedes implementar la lógica para actualizar la posición de otros jugadores
+    //     console.log(`Actualizar posición de otro jugador: ID=${data.id}, x=${data.x}, y=${data.y}`);
+    // }
 
-    collectFlag(player, flag) {
-        if (!this.player) return;
-        flag.disableBody(true, true);
-        console.log("Player ID:", this.playerId);
+    // collectFlag(player, flag) {
+    //     if (!this.player) return;
+    //     flag.disableBody(true, true);
+    //     console.log("Player ID:", this.playerId);
   
-        if (this.playerId) {
-            const flagCaptureMessage = {
-                type: 'flagCaptured',
-                playerId: this.playerId,
-                team: this.currentPlayer.team
-            };
-            this.ws.send(JSON.stringify(flagCaptureMessage));
+    //     if (this.playerId) {
+    //         const flagCaptureMessage = {
+    //             type: 'flagCaptured',
+    //             playerId: this.playerId,
+    //             team: this.currentPlayer.team
+    //         };
+    //         this.ws.send(JSON.stringify(flagCaptureMessage));
   
-            app.captureFlag(this.playerId, function(response) {
-                if (response) {
-                    console.log("Respuesta del servidor:", response);
-                } else {
-                    console.error("No se recibió respuesta del servidor.");
-                }
-            });
-        } else {
-            console.error("ID del jugador no encontrado.");
-        }
-    }
+    //         app.captureFlag(this.playerId, function(response) {
+    //             if (response) {
+    //                 console.log("Respuesta del servidor:", response);
+    //             } else {
+    //                 console.error("No se recibió respuesta del servidor.");
+    //             }
+    //         });
+    //     } else {
+    //         console.error("ID del jugador no encontrado.");
+    //     }
+    // }
     renderPlayers() {
         console.log(this.playersList)
+        var x = 500
+        var y = 500
+        
+         
         this.playersList.forEach(player => {
+
+            if (player.path == "../images/playerA.png") {
+                x = 200
+                y = 200
+                
+            } else {
+                x = 1300
+                y = 800
+            }
+
+
+            if(player.id==this.currentPlayer.id){
+                //this.load.spritesheet("avatar", player.path, { frameWidth: 128, frameHeight: 128 })
+                console.log("estoy renderizando mi propio jugador")
+                var avatar = this.physics.add.sprite(x,y,"avatar");
+                avatar.setScale(1);
+                avatar.setCollideWorldBounds(true);
+                avatar.setSize(30, 80);
+                avatar.setOffset(36, 47);
+
+                //this.avatar = avatar
                 this.renderPlayer(player);
+            }else{
+                //this.load.spritesheet("opponentPlayer", player.path, { frameWidth: 128, frameHeight: 128 })
+                console.log("otro jugador")
+                var oponent = this.physics.add.sprite(x,y,"opponentPlayer")
+                oponent.setScale(1);
+                oponent.setCollideWorldBounds(true);
+                oponent.setSize(30, 80);
+                oponent.setOffset(36, 47);
+
+                this.oponentes.push(oponent)
+                this.renderPlayer(player);
+            }
+            
         });
     }
     
     renderPlayer(player) {
-        // const xPosition =player.position.x
-        // const yPosition =player.position.y
-        this.load.spritesheet("player", player.path, { frameWidth: 128, frameHeight: 128 });
 
-
-        if (player.path == "../images/playerA.png") {
-            this.player = this.physics.add.sprite(200,200, "player");
-            this.player.setCollideWorldBounds(true);
-            this.player.setScale(1);
-            this.player.setSize(30, 80);
-            this.player.setOffset(50, 47);
-        } else {
-            this.player = this.physics.add.sprite(1300, 800, "player");
-            this.player.setCollideWorldBounds(true);
-            this.player.setScale(1);
-            this.player.setSize(30, 80);
-            this.player.setOffset(36, 47);
-        }
+      
+            //this.player = this.physics.add.sprite(1300, 800, this.avatar);
+            // this.player.setCollideWorldBounds(true);
+            // this.player.setSize(30, 80);
+            // this.player.setOffset(36, 47);
+        
 
         console.log(`Renderizando jugador ${player.id}`);
+        console.log(player.path)
     }
 
 }
