@@ -1,17 +1,15 @@
 
 class game extends Phaser.Scene {
     
-    constructor(ws,playersList) {
+    constructor() {
         super("gameMap");
         this.cursors = null;
-        this.currentPlayer = null;
         this.playerId = null;
         this.bandera1 = null;
         this.bandera2 = null;
-        this.playersList = playersList;
-        this.ws=ws;
-        this.getplayer();
-        this.sendStartGameMessage()
+        this.playersList = null
+        this.sceneWs=null;
+        this.connectToWebSocket()
     }
     
     preload() {
@@ -20,25 +18,48 @@ class game extends Phaser.Scene {
         this.load.tilemapTiledJSON("mapa", "../map/mapa.json");
         this.load.image("banderaAzul", "../images/banderaAzul.png");
         this.load.image("banderaNaranja", "../images/banderaNaranja.png");
-        this.load.spritesheet("player", this.currentPlayer.path, { frameWidth: 128, frameHeight: 128 });
+        // this.load.spritesheet("player", this.currentPlayer.path, { frameWidth: 128, frameHeight: 128 });
 
     }
-    getplayer() {
+    connectToWebSocket(){
         const currentUrl = window.location.href;
         const url = new URL(currentUrl);
         const params = new URLSearchParams(url.search);
         const id = params.get('id');
+        this.sceneWs =new WebSocket(`ws://localhost:8081?sessionId=${id}`)
 
-        this.playersList.forEach(player => {
-            if(player.id == id){
-                this.currentPlayer = player;
-            }
-            
-        });
-        this.playerId = this.currentPlayer.id   }
+        this.sceneWs.onopen = async () => {
+            console.log("coneccion en el scene Ws")
+            this.sendStartGameMessage()
+        };
+        this.sceneWs.onmessage = (event) => {
+                    const data = JSON.parse(event.data);
+                    
+        
+                    switch (data.type) {
+                        case 'startGame':
+                            this.playersList = data.playersList;
+                            console.log("esta es la lista con los jugadores")
+                            console.log(this.playersList)
+                            break;
+                        case 'updatePosition':
+                            this.updateOtherPlayerPosition(data);
+                            break;
+                        
+                        case 'flagCaptured':
+                            actualizarPuntuaciones();
+                            break;
+                    }
+                };
+
+
+
+        
+    }
+
     
 
-    async create() {
+    create() {
   
 
 
@@ -96,55 +117,18 @@ class game extends Phaser.Scene {
             this.physics.add.overlap(this.player, this.bandera2, (player, flag) => this.collectFlag(player, flag), null, this);
         }
 
-        // Conectar al servidor WebSocket
-        this.connectToWebSocket();
-    }
-
-     connectToWebSocket() {
-        this.ws.onopen = () => {
-            console.log('Conectado al servidor de WebSocket');
-
-            
-        };
-
-        this.ws.onmessage = (event) => {
-            const data = JSON.parse(event.data);
-            
-
-            switch (data.type) {
-                case 'startGame':
-                    this.playersList = data.playersList;
-                    console.log("esta es la lista con los jugadores")
-                    console.log(this.playersList)
-                    break;
-                case 'updatePosition':
-                    this.updateOtherPlayerPosition(data);
-                    break;
-                
-                case 'flagCaptured':
-                    actualizarPuntuaciones();
-                    break;
-            }
-        };
-
-        this.ws.onclose = () => {
-            console.log('Desconectado del servidor WebSocket');
-        };
-    }
-    sendStartGameMessage(){
-        console.log(this.ws.readyState);
         
-        if (this.ws.readyState === WebSocket.OPEN) {
+    }
+
+    
+
+    sendStartGameMessage(){
+            console.log(this.sceneWs.readyState)
             const startMessage = {
                 type: 'startGame',
-            };
-            
-            this.ws.send(JSON.stringify(startMessage));
+            };   
+            this.sceneWs.send(JSON.stringify(startMessage));
             console.log("Mensaje 'startGame' enviado.");
-        } else {
-            console.error("WebSocket no está abierto");
-        }
-        console.log(this.playersList)
 
     }
 

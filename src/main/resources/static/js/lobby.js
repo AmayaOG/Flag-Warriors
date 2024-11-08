@@ -1,10 +1,12 @@
 
 export var players = [];
 export var lobbyWs = null; // WebSocket globalmente accesible
+export var currentPlayer;
 
 var lobby = (function () { 
     var currentPlayer = null;
     var countdownTimer = null;
+
 
 
     return {
@@ -17,6 +19,7 @@ var lobby = (function () {
                 lobbyWs.onopen = async () => {
                     //console.log('Conectado al servidor de WebSocket');
                     this.joinRoom('abc123'); 
+                    this.renderPlayers();
                     resolve(); // Resuelve cuando la conexión esté lista
                 };
 

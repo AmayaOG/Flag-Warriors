@@ -2,7 +2,8 @@ const WebSocket = require('ws');
 const MAX_PLAYERS_PER_ROOM = 8;
 const rooms = {};
 const playesChannel = {};
-const COUNTDOWN_SECONDS = 45;
+const COUNTDOWN_SECONDS = 10;
+var sendList = false
 
 // Crear un servidor WebSocket en el puerto 8081
 const wss = new WebSocket.Server({ port: 8081 });
@@ -11,7 +12,7 @@ wss.on('connection', (ws, req) => {
     const url = new URL(req.url || '', `http://${req.headers.host}`);
     const sessionId = url.searchParams.get('sessionId') || '';
 
-    console.log(`jugador conectado: ${sessionId}`);
+    console.log(`se conecto el jugador: ${sessionId}`);
     // pushear
     playesChannel[sessionId] = ws; // Almacenar el WebSocket con su sessionId
 
@@ -19,25 +20,15 @@ wss.on('connection', (ws, req) => {
         const data = JSON.parse(message);
         switch (data.type) {
             case 'startGame':
-                console.log("esta es la lista de jugadores en la sala")
-                console.log("-----------------------------------")
-                console.log(rooms.abc123.players)
-
-                //esto toca cambiarlo amas a futuro
-                 rooms.abc123.players.forEach(player => {
-                    console.log("y esa lista se le esta enviando a este jugador:")
-                    console.log("-----------------------------------")
-
-                    console.log(player)
-                    player.currentWs.readyState
-
-                    
-                     player.currentWs.send(JSON.stringify({
-                         type: 'startGame',
-                        playersList: 'rooms.abc123.players'
-                     }));
-                
-             });
+                if(!sendList){
+                    rooms["abc123"].players.forEach((player) => {
+                        playesChannel[player.id].send(JSON.stringify({
+                            type: 'startGame',
+                            playersList: rooms.abc123.players
+                        }));
+                    });
+                }
+               sendList = true;
                 break
             case 'joinRoom':
                 const roomName = data.code;

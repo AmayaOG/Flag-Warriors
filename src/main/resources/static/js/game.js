@@ -1,13 +1,6 @@
 
-import { lobbyWs, players, lobby } from './lobby.js';
 
-
-
-// Espera a que la conexión WebSocket esté lista antes de inicializar la escena
-lobby.connectToWebSocket().then(() => {
-    // Ahora que ws y players están disponibles, puedes inicializar la escena
-    
-    const gameScene = new game(lobbyWs, players);
+    const gameScene = new game();
 
     var config = {
         type: Phaser.AUTO,
@@ -28,9 +21,7 @@ lobby.connectToWebSocket().then(() => {
     }
 
     var juego = new Phaser.Game(config);
-}).catch((error) => {
-    console.error('Error al conectar al WebSocket:', error);
-});
+
 
 
 
