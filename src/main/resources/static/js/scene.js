@@ -26,9 +26,8 @@ class game extends Phaser.Scene {
                 this.currentPlayer=player;
             }
         });
-        console.log("este es el currentPlayer")
-        console.log(this.currentPlayer)
         this.load.spritesheet("player", this.currentPlayer.path, { frameWidth: 128, frameHeight: 128 });
+        this.renderPlayers()
 
         
     }
@@ -38,8 +37,7 @@ class game extends Phaser.Scene {
         const params = new URLSearchParams(url.search);
         const id = params.get('id');
         this.playerId = id;
-        console.log("este es el id antes de hacer la coneccion")
-        console.log(this.playerId)
+  
         this.sceneWs =new WebSocket(`ws://localhost:8081?sessionId=${id}`)
 
         this.sceneWs.onopen = async () => {
@@ -55,10 +53,8 @@ class game extends Phaser.Scene {
                             this.playersList = data.playersList;
                             console.log(`se acgtualizo el playerList ${this.playersList} y este es el id de la sesion ${this.playerId}`)
                             this.initianValues()
-                            this.renderPlayers
-                            //this.playersList = data.playersList;
-                            //console.log("esta es la lista con los jugadores")
-                            //console.log(this.playersList)
+                            
+                           
                             break;
                         case 'updatePosition':
                             this.updateOtherPlayerPosition(data);
@@ -107,19 +103,7 @@ class game extends Phaser.Scene {
         // Crear jugador
 
 
-        if (this.currentPlayer.path == "../images/playerA.png") {
-            this.player = this.physics.add.sprite(200, 200, "player");
-            this.player.setCollideWorldBounds(true);
-            this.player.setScale(1);
-            this.player.setSize(30, 80);
-            this.player.setOffset(50, 47);
-        } else {
-            this.player = this.physics.add.sprite(1300, 800, "player");
-            this.player.setCollideWorldBounds(true);
-            this.player.setScale(1);
-            this.player.setSize(30, 80);
-            this.player.setOffset(36, 47);
-        }
+        
 
 
         // Banderas
@@ -145,7 +129,6 @@ class game extends Phaser.Scene {
                 type: 'startGame',
             };   
             this.sceneWs.send(JSON.stringify(startMessage));
-            console.log("Mensaje 'startGame' enviado.");
 
     }
 
@@ -153,26 +136,26 @@ class game extends Phaser.Scene {
     update() {
         if (!this.cursors) return;
 
-        // Movimiento del jugador (esto aún no se actualiza en el servidor)
-    //     if (this.cursors.right.isDown) {
-    //         this.player.setVelocityX(150);
-    //         this.player.anims.play("caminar", true);
-    //         this.player.flipX = false;
-    //     } else if (this.cursors.left.isDown) {
-    //         this.player.setVelocityX(-150);
-    //         this.player.anims.play("caminar", true);
-    //         this.player.flipX = true;
-    //     } else if (this.cursors.up.isDown) {
-    //         this.player.setVelocityY(-150);
-    //         this.player.anims.play("caminar", true);
-    //     } else if (this.cursors.down.isDown) {
-    //         this.player.setVelocityY(150);
-    //         this.player.anims.play("caminar", true);
-    //     } else {
-    //         this.player.setVelocityX(0);
-    //         this.player.setVelocityY(0);
-    //         this.player.anims.play("quieto", true);
-    //     }
+        //Movimiento del jugador (esto aún no se actualiza en el servidor)
+        if (this.cursors.right.isDown) {
+            this.player.setVelocityX(150);
+            this.player.anims.play("caminar", true);
+            this.player.flipX = false;
+        } else if (this.cursors.left.isDown) {
+            this.player.setVelocityX(-150);
+            this.player.anims.play("caminar", true);
+            this.player.flipX = true;
+        } else if (this.cursors.up.isDown) {
+            this.player.setVelocityY(-150);
+            this.player.anims.play("caminar", true);
+        } else if (this.cursors.down.isDown) {
+            this.player.setVelocityY(150);
+            this.player.anims.play("caminar", true);
+        } else {
+            this.player.setVelocityX(0);
+            this.player.setVelocityY(0);
+            this.player.anims.play("quieto", true);
+        }
      }
 
     updateOtherPlayerPosition(data) {
@@ -205,6 +188,7 @@ class game extends Phaser.Scene {
         }
     }
     renderPlayers() {
+        console.log(this.playersList)
         this.playersList.forEach(player => {
                 this.renderPlayer(player);
         });
@@ -213,27 +197,24 @@ class game extends Phaser.Scene {
     renderPlayer(player) {
         // const xPosition =player.position.x
         // const yPosition =player.position.y
-        this.load.spritesheet("playeradd", player.path, { frameWidth: 128, frameHeight: 128 });
+        this.load.spritesheet("player", player.path, { frameWidth: 128, frameHeight: 128 });
 
 
         if (player.path == "../images/playerA.png") {
-            this.playeradd = this.physics.add.sprite(200,200, "playeradd");
-            this.playeradd.setCollideWorldBounds(true);
-            this.playeradd.setScale(1);
-            this.playeradd.setSize(30, 80);
-            this.playeradd.setOffset(50, 47);
+            this.player = this.physics.add.sprite(200,200, "player");
+            this.player.setCollideWorldBounds(true);
+            this.player.setScale(1);
+            this.player.setSize(30, 80);
+            this.player.setOffset(50, 47);
         } else {
-            this.playeradd = this.physics.add.sprite(1300, 800, "playeradd");
-            this.playeradd.setCollideWorldBounds(true);
-            this.playeradd.setScale(1);
-            this.playeradd.setSize(30, 80);
-            this.playeradd.setOffset(36, 47);
+            this.player = this.physics.add.sprite(1300, 800, "player");
+            this.player.setCollideWorldBounds(true);
+            this.player.setScale(1);
+            this.player.setSize(30, 80);
+            this.player.setOffset(36, 47);
         }
 
-
-        // Lógica para mostrar un jugador en la pantalla
         console.log(`Renderizando jugador ${player.id}`);
-        // Aquí deberías agregar la lógica gráfica para mostrar al jugador en la posición inicial
     }
 
 }
