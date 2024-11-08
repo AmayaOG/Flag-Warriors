@@ -26,11 +26,19 @@ public class Player {
 
     @ManyToOne
     @JoinColumn(name = "team_id")
+    
     @JsonIgnore
     private Team team; 
 
     @Column(name = "path",nullable = true)
     private String path;
+    
+    @Column(name = "initialx",nullable = true)
+    private int x;
+    
+    
+    @Column(name = "initialy",nullable = true)
+    private int y;
     
   
 
@@ -91,4 +99,32 @@ public class Player {
     public void setPath(String path) {
         this.path = path;
     } 
+    public int getX() {
+        return x;
+    }
+
+    public void setX(int x) {
+        this.x = x;
+    }
+
+    public int getY() {
+        return y;
+    }
+
+    public void setY(int y) {
+        this.y = y;
+    }
+    @Override
+public String toString() {
+    return "Player{" +
+            "id=" + id +
+            ", name='" + name + '\'' +
+            ", score=" + score +
+            ", flag=" + flag +
+            ", team=" + (team != null ? team.getName() : "No team") + // Muestra el nombre del equipo si está presente
+            ", path='" + path + '\'' +
+            ", x=" + x +
+            ", y=" + y +
+            '}';
+}
 }

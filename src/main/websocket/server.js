@@ -2,7 +2,7 @@ const WebSocket = require('ws');
 const MAX_PLAYERS_PER_ROOM = 8;
 const rooms = {};
 const playesChannel = {};
-const COUNTDOWN_SECONDS = 5;
+const COUNTDOWN_SECONDS = 30;
 var sendList = false
 
 // Crear un servidor WebSocket en el puerto 8081
@@ -87,7 +87,9 @@ wss.on('connection', (ws, req) => {
                     id: data.playerId,
                     name: data.name,
                     path: data.path,
-                    team : data.team
+                    team : data.team,
+                    x: data.x,
+                    y:data.y
                 };
 
 

@@ -32,6 +32,7 @@ var apiclient = (function () {
                 name: name,
                 imagenPath: imagenPath
             };
+            console.log(teamData)
             
         
             $.ajax({
@@ -97,12 +98,13 @@ $(document).ready(function () {
     if (currentPage === '/') {
 
         apiclient.getTeamByName("EquipoA", function(teamA) {
+            
+                
             if (!teamA) { 
                 apiclient.createTeams("EquipoA", "../images/playerA.png");
             }
         });
         
-       
         apiclient.getTeamByName("EquipoB", function(teamB) {
             if (!teamB) { 
                 apiclient.createTeams("EquipoB", "../images/playerB.png");

@@ -1,5 +1,5 @@
 
-
+var avatar;
     const gameScene = new game();
 
     var config = {
@@ -19,8 +19,10 @@
         },
         scene: [gameScene]
     }
-
     var juego = new Phaser.Game(config);
+
+
+    
 
 
 

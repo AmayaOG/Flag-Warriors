@@ -22,11 +22,31 @@ public class PlayerService {
     private static int playerCount = 0;
 
     public Player savePlayer(Player player) {
+        System.out.println("antes de modificar"+player.toString());
+
         List<Team> teams = teamRepository.findAll();
        
         Team teamToAssign = teams.get(playerCount % 2);
+        int cont = teamToAssign.getCont();
+
+        if(teamToAssign.getName().equals("EquipoA")){
+
+            player.setX(teamToAssign.getPositionsA()[cont][0]);
+            player.setY(teamToAssign.getPositionsA()[cont][1]);  
+        }
+        if(teamToAssign.getName().equals("EquipoB")){
+
+            player.setX(teamToAssign.getPositionsB()[cont][0]);
+            player.setY(teamToAssign.getPositionsB()[cont][1]);
+        }
+
+        teamToAssign.setCont(cont+1);
+
+
+        
         String path = teamToAssign.getPath();
         player.setPath(path);
+        System.out.println(player.toString());
         
         Team managedTeam = teamRepository.findById(teamToAssign.getId())
         .orElseThrow(() -> new RuntimeException("Team not found"));
