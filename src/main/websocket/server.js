@@ -214,6 +214,10 @@ wss.on('connection', (ws, req) => {
 }
 
 );
+// Hacer que el servidor HTTP también escuche en el puerto especificado
+server.listen(port, () => {
+  console.log(`Servidor WebSocket escuchando en el puerto ${port}`);
+});
 
 
 
