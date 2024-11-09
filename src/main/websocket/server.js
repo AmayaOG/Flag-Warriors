@@ -2,9 +2,9 @@ const WebSocket = require('ws');
 const MAX_PLAYERS_PER_ROOM = 8;
 const rooms = {};
 const playesChannel = {};
-const COUNTDOWN_SECONDS = 5;
+const COUNTDOWN_SECONDS = 180;
 var sendList = false
- 
+  
 // Crear un servidor WebSocket en el puerto 8081
 const wss = new WebSocket.Server({ port: 8081 });
 wss.on('connection', (ws, req) => {
@@ -129,24 +129,34 @@ wss.on('connection', (ws, req) => {
                 });
                 break;
                 case "flagCaptured":
-                    const captured = rooms["abc123"].players.find(player => player.id === data.id);
-                    const message=""
-                    console.log(captured)
-                    if(captured.team==="A"){
-                        message="La bandera del equipo B ha sido CAPTURADA!"
-                    }else{
-                        message="La bandera del equipo A ha sido CAPTURADA!"
-
-                    }
-
+                    var team=null
+                    var name = null;
+                    console.log(sessionId)
                     rooms["abc123"].players.forEach((player) => {
-                        if(player.id != sessionId){
+                        console.log(player)
+
+                        if(player.id == sessionId){
+                            if(player.team==="A"){
+                                team="B"
+                            }else{
+                                team="A"
+        
+                            }
+                            name = player.name
+                        }
+                        
+                    });
+                    
+                            
+                    
+                    rooms["abc123"].players.forEach((player) => {
+                        
                             playesChannel[player.id].send(JSON.stringify({
                                 type: 'flagCaptured',
-                                name:captured.name,
-                                alert:message
+                                name: name,
+                                team:team
                             }));
-                        }
+                        
                         
                     });
                     break

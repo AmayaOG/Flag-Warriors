@@ -173,9 +173,8 @@ class game extends Phaser.Scene {
 
                         break;
                         case 'flagCaptured':
-                            console.log("si capturaste la bandera")
-                            
-
+                            console.log(data)
+                            this.showGameMessage(`la bandera del equipo ${data.team} fue capturada por ${data.name}`)
 
                         break;
                         
@@ -189,6 +188,30 @@ class game extends Phaser.Scene {
             }
         });
     }
+    showGameMessage(message) {
+        const messageBox = document.getElementById("game-message");
+      
+        // Limpia el contenido anterior
+        messageBox.innerHTML = "";
+      
+        // Agrega el mensaje como un elemento <p>
+        const messageText = document.createElement("p");
+        messageText.className = "text";
+        messageText.textContent = message;
+        messageBox.appendChild(messageText);
+      
+        // Muestra el aviso
+        messageBox.style.display = "block";
+        messageBox.style.opacity = "1";
+      
+        // Oculta el aviso después de 5 segundos
+        setTimeout(() => {
+          messageBox.style.opacity = "0"; // Transición suave
+          setTimeout(() => {
+            messageBox.style.display = "none";
+          }, 500); // Tiempo para la transición
+        }, 5000);
+      }
 
 
      update() {
@@ -287,7 +310,7 @@ class game extends Phaser.Scene {
 
             const flagCaptureMessage = {
                 type: 'flagCaptured',
-                playerId: this.playerId,
+                playerId: this.currentPlayer.id,
                 team: this.currentPlayer.team
             };
             this.sceneWs.send(JSON.stringify(flagCaptureMessage));
