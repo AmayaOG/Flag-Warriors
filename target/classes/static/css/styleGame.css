@@ -1,0 +1,24 @@
+body {
+    margin: 0; /* Eliminar márgenes del body */
+    height: 100vh; /* Asegura que el body ocupe toda la altura de la ventana */
+    background-image: url("/images/farfaraway.png");
+    background-size: cover; /* Ajusta la imagen para cubrir toda la página */
+    background-repeat: no-repeat; /* Evita que la imagen se repita */
+    background-position: center; /* Centra la imagen */
+    
+}
+
+.puntajes {
+    display: flex; /* Usar flexbox en el contenedor de puntajes */
+    justify-content: space-between; /* Distribuir el espacio entre los elementos hijos */
+    align-items: center; /* Alinear los elementos verticalmente al centro */
+    padding: 0px 90px; /* Espacio lateral opcional para el contenedor */
+}
+
+p {
+    margin: 0 20px ; /* Añadir margen horizontal entre los elementos */
+    font-size: 40px; /* Tamaño de fuente opcional */
+    color: rgb(0, 0, 0); /* Color de texto para mejor visibilidad */
+    height: 50px;
+
+}

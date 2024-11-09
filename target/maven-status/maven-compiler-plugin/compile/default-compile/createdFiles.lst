@@ -1,0 +1,11 @@
+edu\eci\arsw\project\flagwarriors\controllers\GameControllers.class
+edu\eci\arsw\project\flagwarriors\service\TeamService.class
+edu\eci\arsw\project\flagwarriors\model\Player.class
+edu\eci\arsw\project\flagwarriors\service\PlayerService.class
+edu\eci\arsw\project\flagwarriors\repository\TeamRepository.class
+edu\eci\arsw\project\flagwarriors\api\PlayerAPIController.class
+edu\eci\arsw\project\flagwarriors\model\Team.class
+edu\eci\arsw\project\flagwarriors\api\TeamAPIController.class
+edu\eci\arsw\project\flagwarriors\repository\PlayerRepository.class
+edu\eci\arsw\project\FlagwarriorsApplication.class
+edu\eci\arsw\project\flagwarriors\model\Game.class
