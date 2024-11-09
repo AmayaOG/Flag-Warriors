@@ -4,9 +4,18 @@ const rooms = {};
 const playesChannel = {};
 const COUNTDOWN_SECONDS = 180;
 var sendList = false
-  
+const http = require('http');
+
+// Usamos `process.env.PORT` para escuchar en el puerto adecuado en Heroku
+const port = process.env.PORT || 8081; // Fallback a 8081 si no está definido en Heroku
+
+// Creamos un servidor HTTP para que el WebSocket se ejecute sobre él
+const server = http.createServer((req, res) => {
+  res.writeHead(200, {'Content-Type': 'text/plain'});
+  res.end('Servidor WebSocket en ejecución');
+});
 // Crear un servidor WebSocket en el puerto 8081
-const wss = new WebSocket.Server({ port: 8081 });
+const wss = new WebSocket.Server({server});
 
 console.log("############ WebSocket en "+wss.options.port)
 wss.on('connection', (ws, req) => {
