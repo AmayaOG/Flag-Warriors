@@ -1,0 +1,11 @@
+{
+  "name": "mi-aplicacion-node",
+  "version": "1.0.0",
+  "engines": {
+    "node": ">=14.x",  // Puedes especificar la versión que desees
+    "npm": ">=6.x"     // También puedes especificar la versión de npm si es necesario
+  },
+  "scripts": {
+    "start": "node server.js"
+  }
+}
