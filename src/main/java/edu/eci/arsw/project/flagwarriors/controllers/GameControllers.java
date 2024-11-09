@@ -17,6 +17,10 @@ public class GameControllers {
     public String game() {
         return "game"; 
     }
+    @GetMapping("/final")
+    public String getFinal() {
+        return "final"; 
+    }
 
     @GetMapping("/error")
     public String error() {

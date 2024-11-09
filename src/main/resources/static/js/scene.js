@@ -109,7 +109,14 @@ class game extends Phaser.Scene {
             this.currentPlayer.flag = false;
             flag.disableBody(false, false);
 
+            setTimeout(() => {
+                
+                const finish = {
+                    type: 'finish',
                     
+                };
+                this.sceneWs.send(JSON.stringify(finish));
+            }, 10000);
 
             
         }
@@ -233,6 +240,8 @@ class game extends Phaser.Scene {
 
                             }    
                         break
+                        case 'finish':
+                            window.location.href = '/final';
                         
 
                     }

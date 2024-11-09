@@ -177,6 +177,18 @@ wss.on('connection', (ws, req) => {
                         
                         });
                     break
+                    case 'finish':
+                         
+                    rooms["abc123"].players.forEach((player) => {
+                            
+                        playesChannel[player.id].send(JSON.stringify({
+                            type: 'finish'
+                        }));
+                    
+                    
+                    });
+
+                    
 
         }
     });
