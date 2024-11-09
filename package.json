@@ -6,6 +6,6 @@
     "npm": ">=6.x"    
   },
   "scripts": {
-    "start": "node server.js"
+    "start": "node src/main/websocket/server.js"
   }
 }
