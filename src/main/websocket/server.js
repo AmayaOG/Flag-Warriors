@@ -7,6 +7,8 @@ var sendList = false
   
 // Crear un servidor WebSocket en el puerto 8081
 const wss = new WebSocket.Server({ port: 8081 });
+
+console.log("############ WebSocket en "+wss.options.port)
 wss.on('connection', (ws, req) => {
     // Extraer el sessionId desde la URL
     const url = new URL(req.url || '', `http://${req.headers.host}`);
