@@ -10,8 +10,10 @@ class game extends Phaser.Scene {
         this.playersList = null
         this.oponentes =[];
         this.sceneWs=null;
+        this.col=null;
+        this.contador = 0;
         this.connectToWebSocket()
-        //this.avatar=null
+        
     }
     
     preload() {
@@ -25,9 +27,11 @@ class game extends Phaser.Scene {
      initializeGame() {
      
 
-            this.loadPlayersTextures();  // Cargar texturas de todos los jugadores
+            this.loadPlayersTextures();  
+            this.load.start(); // Cargar texturas de todos los jugadores
             this.load.on('complete', () => { // Espera a que todas las texturas terminen de cargarse
-                this.renderPlayers();  // Llamar a renderPlayers después de cargar texturas
+                this.renderPlayers(); 
+               
             });
             this.load.start();  // Iniciar la carga
 
@@ -38,7 +42,7 @@ class game extends Phaser.Scene {
             if (player.id == this.currentPlayer.id) {
 
                 this.load.spritesheet("avatar", player.path, { frameWidth: 128, frameHeight: 128 });
-                this.avatar = this.physics.add.sprite(this.currentPlayer.x,this.currentPlayer.y,"avatar");
+                //this.avatar = this.physics.add.sprite(this.currentPlayer.x,this.currentPlayer.y,"avatar");
 
             } else {
                 this.load.spritesheet(`opponentPlayer_${player.id}`, player.path, { frameWidth: 128, frameHeight: 128 });
@@ -77,16 +81,9 @@ class game extends Phaser.Scene {
                     
         
                     switch (data.type) {
-                        //case 'startGame':
-                          //  this.playersList = data.playersList;
-                            
-                            
 
-                            
-                           
-                         //   break;
-                        case 'updatePosition':
-                            this.updateOtherPlayerPosition(data);
+                        case 'playerMoved':
+                            console.log("el oponente se movio en conection")
                             break;
                         
                         case 'flagCaptured':
@@ -125,11 +122,13 @@ class game extends Phaser.Scene {
         // Mapa
         var map = this.make.tilemap({ key: "mapa" });
         var tileset = map.addTilesetImage("muros", "textura");
+
         var fondo = map.createLayer("pisosDelJuego", tileset);
         fondo.setScale(2.25);
         fondo.setCollisionByProperty({ colision: true });
+        this.col = fondo
 
-        // Crear jugador
+        
 
 
         
@@ -139,15 +138,8 @@ class game extends Phaser.Scene {
         this.bandera1 = this.physics.add.sprite(1280, 950, 'banderaAzul').setScale(0.3).setSize(100, 100);
         this.bandera2 = this.physics.add.sprite(180, 120, 'banderaNaranja').setScale(0.3).setSize(100, 100);
 
-        // Colisiones
+        // this.physics.add.collider(this.avatar, fondo);
 
-        this.physics.add.collider(this.avatar, fondo);
-
-        if (this.currentPlayer.path == "../images/playerA.png") {
-            this.physics.add.overlap(this.avatar, this.bandera1, (player, flag) => this.collectFlag(player, flag), null, this);
-        } else {
-            this.physics.add.overlap(this.avatar, this.bandera2, (player, flag) => this.collectFlag(player, flag), null, this);
-        }
 
         
     }
@@ -157,20 +149,39 @@ class game extends Phaser.Scene {
     async sendStartGameMessage(){
         return new Promise((resolve, reject) => {
             if (this.sceneWs.readyState === WebSocket.OPEN) {
+                
                 const joinMessage = { type: 'startGame' };
                 this.sceneWs.send(JSON.stringify(joinMessage));
 
                 this.sceneWs.onmessage = (event) => {
                     const data = JSON.parse(event.data);
-                    if (data.type === 'startGame') {
-                        this.playersList = data.playersList;
+                    switch(data.type){
+                        case 'startGame':
+                            this.playersList = data.playersList;
                         console.log(this.playersList)
 
                         this.initianValues()
                         this.initializeGame();
 
                         resolve(data);
+                        break;
+
+                        case 'playerMoved':
+                            var oponentToUpdate = this.oponentes[data.id];
+                            oponentToUpdate.setPosition(data.x, data.y);
+
+
+                        break;
+                        case 'flagCaptured':
+                            console.log("si capturaste la bandera")
+                            
+
+
+                        break;
+                        
+
                     }
+                    
                 };
             } else {
                 console.error("WebSocket no está abierto");
@@ -182,35 +193,68 @@ class game extends Phaser.Scene {
 
      update() {
     //     if (!this.cursors) return;
-
-    //     //Movimiento del jugador (esto aún no se actualiza en el servidor)
-         if (this.cursors.right.isDown) {
+    
+        if (this.avatar) {
             
-            this.avatar.setVelocityX(150);
-            this.avatar.anims.play("caminar", true);
-            this.avatar.flipX = false;
-         } 
-         else if (this.cursors.left.isDown) {
-            this.avatar.setVelocityX(-150);
-            this.avatar.anims.play("caminar", true);
-            this.avatar.flipX = true;
-        } else if (this.cursors.up.isDown) {
-            this.avatar.setVelocityY(-150);
-            this.avatar.anims.play("caminar", true);
-        } else if (this.cursors.down.isDown) {
-            this.avatar.setVelocityY(150);
-            this.avatar.anims.play("caminar", true);
-        } else {
-            this.avatar.setVelocityX(0);
-            this.avatar.setVelocityY(0);
-            this.avatar.anims.play("quieto", true);
-        }
-      }
 
-    // updateOtherPlayerPosition(data) {
-    //     // Aquí puedes implementar la lógica para actualizar la posición de otros jugadores
-    //     console.log(`Actualizar posición de otro jugador: ID=${data.id}, x=${data.x}, y=${data.y}`);
-    // }
+            if (this.cursors.right.isDown) {
+                
+                this.avatar.setVelocityX(150);
+                this.avatar.anims.play("caminar", true);
+                this.avatar.flipX = false;
+                this.contador++;
+
+
+            } 
+            else if (this.cursors.left.isDown) {
+
+                this.avatar.setVelocityX(-150);
+                this.avatar.anims.play("caminar", true);
+                this.avatar.flipX = true;
+                this.contador++;
+
+
+
+            } else if (this.cursors.up.isDown) {
+
+                this.avatar.setVelocityY(-150);
+                this.avatar.anims.play("caminar", true);
+                this.contador++;
+
+                
+            } else if (this.cursors.down.isDown) {
+                this.avatar.setVelocityY(150);
+                this.avatar.anims.play("caminar", true);
+                this.contador++;
+
+            } else {
+                this.avatar.setVelocityX(0);
+                this.avatar.setVelocityY(0);
+                this.avatar.anims.play("quieto", true);
+            }
+        }
+        if (this.contador == 5){
+            
+            this.contador=0
+            this.sendMovementData()
+        }
+
+
+
+
+
+        
+    }
+
+    sendMovementData() {
+        const movementData = {
+            type: 'updatePosition',
+            id: this.currentPlayer.id, // ID del jugador
+            x : this.avatar.x,
+            y : this.avatar.y
+        };
+        this.sceneWs.send(JSON.stringify(movementData));
+    }
 
     // collectFlag(player, flag) {
     //     if (!this.player) return;
@@ -236,31 +280,59 @@ class game extends Phaser.Scene {
     //         console.error("ID del jugador no encontrado.");
     //     }
     // }
+    collectFlag(player, flag){
+        console.log("hola")
+        flag.disableBody(true, true);
+        console.log("Player ID:", this.currentPlayer.id);
+
+            const flagCaptureMessage = {
+                type: 'flagCaptured',
+                playerId: this.playerId,
+                team: this.currentPlayer.team
+            };
+            this.sceneWs.send(JSON.stringify(flagCaptureMessage));
+      
+
+    }
     renderPlayers() {
+        // Colisiones
+
+        
+
         
          
         this.playersList.forEach(player => {
 
             if(player.id==this.currentPlayer.id){
                 //this.load.spritesheet("avatar", player.path, { frameWidth: 128, frameHeight: 128 })
-                //this.avatar = this.physics.add.sprite(this.currentPlayer.x,this.currentPlayer.y,"avatar");
+                this.avatar = this.physics.add.sprite(this.currentPlayer.x,this.currentPlayer.y,"avatar");
 
                 this.avatar.setScale(1);
                 this.avatar.setCollideWorldBounds(true);
                 this.avatar.setSize(30, 80);
                 this.avatar.setOffset(50, 47);
 
-                //this.avatar = avatar
                 this.renderPlayer(player);
+
+                this.physics.add.collider(this.avatar, this.col);
+
+                if (this.currentPlayer.path == "../images/playerA.png") {
+                    this.physics.add.overlap(this.avatar, this.bandera1, (player, flag) => this.collectFlag(player, flag), null, this);
+                } else {
+                    this.physics.add.overlap(this.avatar, this.bandera2, (player, flag) => this.collectFlag(player, flag), null, this);
+                }
+
             }else{
+                
                 //this.load.spritesheet("opponentPlayer", player.path, { frameWidth: 128, frameHeight: 128 })
                 var oponent = this.physics.add.sprite(player.x,player.y,`opponentPlayer_${player.id}`)
+
                 oponent.setScale(1);
                 oponent.setCollideWorldBounds(true);
                 oponent.setSize(30, 80);
                 oponent.setOffset(46, 47);
 
-                this.oponentes.push(oponent)
+                this.oponentes[player.id]=oponent;
                 this.renderPlayer(player);
             }
             
