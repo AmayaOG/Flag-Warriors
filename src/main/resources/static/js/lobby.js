@@ -13,7 +13,7 @@ var lobby = (function () {
       
         async connectToWebSocket() {
             await this.getPlayer();
-            lobbyWs = new WebSocket(`ws://localhost:8081?sessionId=${currentPlayer.id}`)
+            lobbyWs = new WebSocket(`wss://game333-a4994766b26f.herokuapp.com?sessionId=${currentPlayer.id}`)
 
             return new Promise((resolve, reject) => {
                 lobbyWs.onopen = async () => {
