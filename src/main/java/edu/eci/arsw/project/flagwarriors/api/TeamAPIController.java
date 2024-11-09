@@ -1,5 +1,7 @@
 package edu.eci.arsw.project.flagwarriors.api;
 
+import java.io.BufferedReader;
+import java.io.IOException;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,10 +14,15 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import edu.eci.arsw.project.flagwarriors.model.Player;
 import edu.eci.arsw.project.flagwarriors.model.Team;
 import edu.eci.arsw.project.flagwarriors.service.PlayerService;
 import edu.eci.arsw.project.flagwarriors.service.TeamService;
+import jakarta.servlet.http.HttpServletRequest;
+
 import org.springframework.web.bind.annotation.RequestParam;
 
 
@@ -35,9 +42,11 @@ public class TeamAPIController {
 
     @PostMapping
     public ResponseEntity<Team> createTeam(@RequestBody Team team) {
-        
         return new ResponseEntity<>(teamService.saveTeam(team), HttpStatus.CREATED);
     }
+   
+
+    
 
     @GetMapping("/name/{name}")
     public ResponseEntity<Team> getTeam(@PathVariable String name) {

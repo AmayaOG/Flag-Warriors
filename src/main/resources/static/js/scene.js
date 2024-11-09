@@ -1,194 +1,423 @@
+
 class game extends Phaser.Scene {
-  constructor() {
-      super("gameMap"); // nombre escena
-      this.cursors = null;
-      this.currentPlayer = null;
-      this.playerId = null;
-      this.bandera1 = null;
-      this.bandera2 = null;
-      this.getplayer();
-  }
+    
+    constructor() {
+        super("gameMap");
+        this.cursors = null;
+        this.playerId = null;
+        this.bandera1 = null;
+        this.bandera2 = null;
+        this.playersList = null
+        this.oponentes =[];
+        this.sceneWs=null;
+        this.col=null;
+        this.contador = 0;
+        this.baseA;
+        this.baseB
+        this.connectToWebSocket()
+        
+    }
+    
+    preload() {
 
-  getplayer() {
-      const currentUrl = window.location.href;
-      const url = new URL(currentUrl);
-      const params = new URLSearchParams(url.search);
-      const id = params.get('id');
+        this.load.image("textura", "../map/Textures-16.png");
+        this.load.tilemapTiledJSON("mapa", "../map/mapa.json");
+        this.load.image("banderaAzul", "../images/banderaAzul.png");
+        this.load.image("banderaNaranja", "../images/banderaNaranja.png");
 
-      if (!id) {
-          console.error("ID no encontrado en la URL");
-          return;
+    }
+     initializeGame() {
+     
+
+            this.loadPlayersTextures();  
+            this.load.start(); // Cargar texturas de todos los jugadores
+            this.load.on('complete', () => { // Espera a que todas las texturas terminen de cargarse
+                this.renderPlayers(); 
+               
+            });
+            this.load.start();  // Iniciar la carga
+
+        
+    }
+    loadPlayersTextures() {
+        this.playersList.forEach(player => {
+            if (player.id == this.currentPlayer.id) {
+
+                this.load.spritesheet("avatar", player.path, { frameWidth: 128, frameHeight: 128 });
+                //this.avatar = this.physics.add.sprite(this.currentPlayer.x,this.currentPlayer.y,"avatar");
+
+            } else {
+                this.load.spritesheet(`opponentPlayer_${player.id}`, player.path, { frameWidth: 128, frameHeight: 128 });
+                
+            }
+        });
+    }
+
+    initianValues(){
+        this.playersList.forEach(player => {
+            if (player.id == this.playerId) {
+                this.currentPlayer=player;
+            }
+        });
+
+
+        
+    }
+    async connectToWebSocket(){
+        const currentUrl = window.location.href;
+        const url = new URL(currentUrl);
+        const params = new URLSearchParams(url.search);
+        const id = params.get('id');
+        this.playerId = id;
+  
+        this.sceneWs =new WebSocket(`ws://localhost:8081?sessionId=${id}`)
+
+        this.sceneWs.onopen = async () => {
+            
+
+                this.sendStartGameMessage()
+
+        };
+        this.sceneWs.onmessage = (event) => {
+                    const data = JSON.parse(event.data);
+                    
+        
+                    switch (data.type) {
+
+                        case 'playerMoved':
+                            console.log("el oponente se movio en conection")
+                            break;
+                        
+                       
+                    }
+                };
+
+
+
+        
+    }
+    actualizarPuntuaciones(flag){
+        if(this.currentPlayer.flag == true){
+            
+
+            const actualizarPuntos = {
+                type: 'actualizarPuntos',
+                
+            };
+            this.sceneWs.send(JSON.stringify(actualizarPuntos));
+
+            this.currentPlayer.flag = false;
+            flag.disableBody(false, false);
+
+            setTimeout(() => {
+                
+                const finish = {
+                    type: 'finish',
+                    
+                };
+                this.sceneWs.send(JSON.stringify(finish));
+            }, 10000);
+
+            
+        }
+        
+        
+    }
+
+    
+
+    create() {
+  
+
+
+        this.cursors = this.input.keyboard.createCursorKeys();
+
+        // Animaciones
+        this.anims.create({
+            key: "caminar",
+            frames: this.anims.generateFrameNumbers("avatar", { start: 1, end: 7 }),
+            frameRate: 10,
+            repeat: -1
+        });
+        this.anims.create({
+            key: "quieto",
+            frames: this.anims.generateFrameNumbers("avatar", { start: 0, end: 0 }),
+            frameRate: 10,
+            repeat: -1
+        });
+
+        // Mapa
+        var map = this.make.tilemap({ key: "mapa" });
+        var tileset = map.addTilesetImage("muros", "textura");
+
+        var fondo = map.createLayer("pisosDelJuego", tileset);
+        fondo.setScale(2.25);
+        fondo.setCollisionByProperty({ colision: true });
+        this.col = fondo
+
+        
+
+
+        
+
+
+        // Banderas
+        this.bandera1 = this.physics.add.sprite(1280, 950, 'banderaAzul').setScale(0.3).setSize(100, 100);
+        this.bandera2 = this.physics.add.sprite(180, 120, 'banderaNaranja').setScale(0.3).setSize(100, 100);
+
+        this.baseA = this.physics.add.sprite(200, 180).setSize(80, 20);
+        this.baseB = this.physics.add.sprite(1280, 900).setSize(80, 20);
+
+        // Configurar colisiones con el avatar del jugador
+        // this.physics.add.collider(this.avatar, this.baseA);
+        
+
+
+        
+    }
+
+    
+
+    async sendStartGameMessage(){
+        return new Promise((resolve, reject) => {
+            if (this.sceneWs.readyState === WebSocket.OPEN) {
+                
+                const joinMessage = { type: 'startGame' };
+                this.sceneWs.send(JSON.stringify(joinMessage));
+
+                this.sceneWs.onmessage = (event) => {
+                    const data = JSON.parse(event.data);
+                    switch(data.type){
+                        case 'startGame':
+                            this.playersList = data.playersList;
+                        console.log(this.playersList)
+
+                        this.initianValues()
+                        this.initializeGame();
+
+                        resolve(data);
+                        break;
+
+                        case 'playerMoved':
+                            var oponentToUpdate = this.oponentes[data.id];
+                            oponentToUpdate.setPosition(data.x, data.y);
+
+
+                        break;
+                        case 'flagCaptured':
+                            if(data.team ==="A"){
+                                this.showGameMessage(`la bandera del equipo Naranja fue capturada por ${data.name}`)
+
+                                this.bandera2.disableBody(true,true)
+                            }else{
+                                this.showGameMessage(`la bandera del equipo Azul fue capturada por ${data.name}`)
+                                this.bandera1.disableBody(true,true)
+                            }
+                            
+
+                        break;
+                        case 'actualizarPuntos':
+                            let puntajeElemento = null;
+    
+                            // Selecciona el elemento de puntaje según el equipo
+                            if (data.team === "A") {
+                                puntajeElemento = $('#equipoA');
+                            } else {
+                                puntajeElemento = $('#equipoB');
+                            }
+                            
+                            if (puntajeElemento) {
+                                // Obtener el texto actual del puntaje y extraer el número
+                                let puntajeActual = parseInt(puntajeElemento.text().match(/\d+/)) || 0;
+                        
+                                // Incrementar el puntaje
+                                puntajeActual += 1;
+                        
+                                // Actualizar el texto en el elemento con el nuevo puntaje
+                                const equipoTexto = data.team === "A" ? "Equipo Naranja" : "Equipo Azul";
+                                puntajeElemento.text(`${equipoTexto}: ${puntajeActual}`);
+                                this.showGameMessage(`El ${equipoTexto} hizo un punto`)
+
+                            }    
+                        break
+                        case 'finish':
+                            window.location.href = '/final';
+                        
+
+                    }
+                    
+                };
+            } else {
+                console.error("WebSocket no está abierto");
+                reject("WebSocket no está abierto");
+            }
+        });
+    }
+    showGameMessage(message) {
+        const messageBox = document.getElementById("game-message");
+      
+        // Limpia el contenido anterior
+        messageBox.innerHTML = "";
+      
+        // Agrega el mensaje como un elemento <p>
+        const messageText = document.createElement("p");
+        messageText.className = "text";
+        messageText.textContent = message;
+        messageBox.appendChild(messageText);
+      
+        // Muestra el aviso
+        messageBox.style.display = "block";
+        messageBox.style.opacity = "1";
+      
+        // Oculta el aviso después de 5 segundos
+        setTimeout(() => {
+          messageBox.style.opacity = "0"; // Transición suave
+          setTimeout(() => {
+            messageBox.style.display = "none";
+          }, 500); // Tiempo para la transición
+        }, 5000);
       }
 
-      return new Promise((resolve, reject) => {
-          apiclient.getPlayerById(id, (data) => {
-              this.currentPlayer = data; 
-              this.playerId = data.id;
-              this.load.spritesheet("player", this.currentPlayer.path, { frameWidth: 128, frameHeight: 128 });
 
-              resolve();
-          });
-      });
-  }
+     update() {
+    //     if (!this.cursors) return;
+    
+        if (this.avatar) {
+            
 
-  preload() {
-      this.load.image("textura", "../map/Textures-16.png");
-      this.load.tilemapTiledJSON("mapa", "../map/mapa.json");
-      this.load.image("banderaAzul", "../images/banderaAzul.png");
-      this.load.image("banderaNaranja", "../images/banderaNaranja.png");
-  }
+            if (this.cursors.right.isDown) {
+                
+                this.avatar.setVelocityX(150);
+                this.avatar.anims.play("caminar", true);
+                this.avatar.flipX = false;
+                this.contador++;
 
-  async create() {
-      await this.getplayer();
-      this.cursors = this.input.keyboard.createCursorKeys();
 
-      // Animaciones
-      this.anims.create({
-          key: "caminar",
-          frames: this.anims.generateFrameNumbers("player", { start: 1, end: 7 }),
-          frameRate: 10,
-          repeat: -1
-      });
-      this.anims.create({
-          key: "quieto",
-          frames: this.anims.generateFrameNumbers("player", { start: 0, end: 0 }),
-          frameRate: 10,
-          repeat: -1
-      });
+            } 
+            else if (this.cursors.left.isDown) {
 
-      // Mapa
-      var map = this.make.tilemap({ key: "mapa" });
-      var tileset = map.addTilesetImage("muros", "textura");
-      var fondo = map.createLayer("pisosDelJuego", tileset);
-      fondo.setScale(2.25);
-      fondo.setCollisionByProperty({ colision: true });
+                this.avatar.setVelocityX(-150);
+                this.avatar.anims.play("caminar", true);
+                this.avatar.flipX = true;
+                this.contador++;
 
-      // Crear jugador
-      if (this.currentPlayer.path == "../images/playerA.png") {
-          this.player = this.physics.add.sprite(500, 500, "player");
-          this.player.setCollideWorldBounds(true);
-          this.player.setScale(1);
-          this.player.setSize(30, 80);
-          this.player.setOffset(50, 47);
-      } else {
-          this.player = this.physics.add.sprite(500, 500, "player");
-          this.player.setCollideWorldBounds(true);
-          this.player.setScale(1);
-          this.player.setSize(30, 80);
-          this.player.setOffset(36, 47);
-      }
 
-      // Banderas
-      this.bandera1 = this.physics.add.sprite(1280, 950, 'banderaAzul').setScale(0.3).setSize(100, 100);
-      this.bandera2 = this.physics.add.sprite(180, 120, 'banderaNaranja').setScale(0.3).setSize(100, 100);
 
-      // Colisiones
-      this.physics.add.collider(this.player, fondo);
+            } else if (this.cursors.up.isDown) {
 
-      if (this.currentPlayer.path == "../images/playerA.png") {
-          this.physics.add.overlap(this.player, this.bandera1, (player, flag) => this.collectFlag(player, flag), null, this);
-      } else {
-          this.physics.add.overlap(this.player, this.bandera2, (player, flag) => this.collectFlag(player, flag), null, this);
-      }
+                this.avatar.setVelocityY(-150);
+                this.avatar.anims.play("caminar", true);
+                this.contador++;
 
-      // Conectar al servidor WebSocket
-      this.connectToWebSocket();
-  }
+                
+            } else if (this.cursors.down.isDown) {
+                this.avatar.setVelocityY(150);
+                this.avatar.anims.play("caminar", true);
+                this.contador++;
 
-  connectToWebSocket() {
-      this.ws = new WebSocket('ws://localhost:8081');
+            } else {
+                this.avatar.setVelocityX(0);
+                this.avatar.setVelocityY(0);
+                this.avatar.anims.play("quieto", true);
+            }
+        }
+        if (this.contador == 5){
+            
+            this.contador=0
+            this.sendMovementData()
+        }
 
-      this.ws.onopen = () => {
-          console.log('Conectado al servidor de WebSocket');
-          const playerInfo = {
-              type: 'newPlayer',
-              id: this.playerId,
-              name: this.player.name,
-              team: this.currentPlayer.team
-          };
-          this.ws.send(JSON.stringify(playerInfo));
-      };
 
-      this.ws.onmessage = (event) => {
-          const data = JSON.parse(event.data);
-          console.log('Mensaje del servidor:', data);
 
-          switch (data.type) {
-              case 'updatePosition':
-                  this.updateOtherPlayerPosition(data);
-                  break;
-              case 'flagCaptured':
-                  actualizarPuntuaciones();
-                  break;
-          }
-      };
 
-      this.ws.onclose = () => {
-          console.log('Desconectado del servidor WebSocket');
-      };
-  }
 
-  update() {
-      if (!this.cursors) return;
+        
+    }
 
-      // Movimiento del jugador
-      if (this.cursors.right.isDown) {
-          this.player.setVelocityX(150);
-          this.player.anims.play("caminar", true);
-          this.player.flipX = false;
-      } else if (this.cursors.left.isDown) {
-          this.player.setVelocityX(-150);
-          this.player.anims.play("caminar", true);
-          this.player.flipX = true;
-      } else if (this.cursors.up.isDown) {
-          this.player.setVelocityY(-150);
-          this.player.anims.play("caminar", true);
-      } else if (this.cursors.down.isDown) {
-          this.player.setVelocityY(150);
-          this.player.anims.play("caminar", true);
-      } else {
-          this.player.setVelocityX(0);
-          this.player.setVelocityY(0);
-          this.player.anims.play("quieto", true);
-      }
+    sendMovementData() {
+        const movementData = {
+            type: 'updatePosition',
+            id: this.currentPlayer.id, // ID del jugador
+            x : this.avatar.x,
+            y : this.avatar.y
+        };
+        this.sceneWs.send(JSON.stringify(movementData));
+    }
 
-      // Enviar posición del jugador al servidor WebSocket
-      const playerPositionMessage = {
-          type: 'updatePosition',
-          id: this.playerId,
-          x: this.player.x,
-          y: this.player.y
-      };
-      this.ws.send(JSON.stringify(playerPositionMessage));
-  }
+    collectFlag(player, flag){
+        this.currentPlayer.flag = true;
+        flag.disableBody(true, true);
 
-  collectFlag(player, flag) {
-      if (!this.player) return;
-      flag.disableBody(true, true);
-      console.log("Player ID:", this.playerId);
+            const flagCaptureMessage = {
+                type: 'flagCaptured',
+                playerId: this.currentPlayer.id,
+                team: this.currentPlayer.team
+            };
+            this.sceneWs.send(JSON.stringify(flagCaptureMessage));
+            app.captureFlag(this.playerId, function(response) {
+                            if (response) {
+                                console.log("Respuesta del servidor:", response);
+                            } else {
+                                console.error("No se recibió respuesta del servidor.");
+                            }
+                        });
+                            
+                        
 
-      if (this.playerId) {
-          const flagCaptureMessage = {
-              type: 'flagCaptured',
-              playerId: this.playerId,
-              team: this.currentPlayer.team
-          };
-          this.ws.send(JSON.stringify(flagCaptureMessage));
+    }
+    renderPlayers() {
+        // Colisiones
 
-          app.captureFlag(this.playerId, function(response) {
-              if (response) {
-                  console.log("Respuesta del servidor:", response);
-              } else {
-                  console.error("No se recibió respuesta del servidor.");
-              }
-          });
-      } else {
-          console.error("ID del jugador no encontrado.");
-      }
-  }
+        
 
-  updateOtherPlayerPosition(data) {
-      // Aquí puedes implementar la lógica para actualizar la posición de otros jugadores
-      console.log(`Actualizar posición de otro jugador: ID=${data.id}, x=${data.x}, y=${data.y}`);
-  }
+        
+         
+        this.playersList.forEach(player => {
+
+            if(player.id==this.currentPlayer.id){
+                //this.load.spritesheet("avatar", player.path, { frameWidth: 128, frameHeight: 128 })
+                this.avatar = this.physics.add.sprite(this.currentPlayer.x,this.currentPlayer.y,"avatar");
+
+                this.avatar.setScale(1);
+                this.avatar.setCollideWorldBounds(true);
+                this.avatar.setSize(30, 80);
+                this.avatar.setOffset(50, 47);
+
+                this.renderPlayer(player);
+
+                this.physics.add.collider(this.avatar, this.col);
+                
+
+                if (this.currentPlayer.path == "../images/playerA.png") {
+                    this.physics.add.overlap(this.avatar, this.bandera1, (player, flag) => this.collectFlag(player, flag), null, this);
+                    this.physics.add.overlap(this.avatar, this.baseA,(flag) => this.actualizarPuntuaciones(flag), null, this);
+                } else {
+                    this.physics.add.overlap(this.avatar, this.bandera2,(player, flag) => this.collectFlag(player, flag), null, this);
+                    this.physics.add.overlap(this.avatar, this.baseB,(flag)=> this.actualizarPuntuaciones(flag), null, this);
+                }
+
+            }else{
+                
+                var oponent = this.physics.add.sprite(player.x,player.y,`opponentPlayer_${player.id}`)
+
+                oponent.setScale(1);
+                oponent.setCollideWorldBounds(true);
+                oponent.setSize(30, 80);
+                oponent.setOffset(46, 47);
+
+                this.oponentes[player.id]=oponent;
+                this.renderPlayer(player);
+            }
+            
+        });
+    }
+    
+    renderPlayer(player) {
+
+
+        console.log(`Renderizando jugador ${player.id}`);
+        console.log(player.path)
+    }
+
 }
+    
