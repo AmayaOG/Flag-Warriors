@@ -1,5 +1,5 @@
 var apiclient = (function () {
-    var apiUrl = "http://localhost:8080/api";
+    var apiUrl = "https://juego-2e02989c1e2f.herokuapp.com/api";
 
     return {
 
