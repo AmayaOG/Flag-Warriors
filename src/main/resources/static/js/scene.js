@@ -70,7 +70,7 @@ class game extends Phaser.Scene {
         const id = params.get('id');
         this.playerId = id;
   
-        this.sceneWs =new WebSocket(`ws://localhost:8081?sessionId=${id}`)
+        this.sceneWs =new WebSocket(`wss://game333-a4994766b26f.herokuapp.com?sessionId=${id}`)
 
         this.sceneWs.onopen = async () => {
             
