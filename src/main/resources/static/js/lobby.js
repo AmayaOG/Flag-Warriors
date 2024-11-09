@@ -77,6 +77,8 @@ var lobby = (function () {
                 name: currentPlayer.name,
                 path: currentPlayer.path,
                 team: (currentPlayer.path).charAt((currentPlayer.path).indexOf("player")+6),
+                teamScore:  currentPlayer.score,
+                flag:currentPlayer.flag,
                 x: currentPlayer.x,
                 y: currentPlayer.y
             };

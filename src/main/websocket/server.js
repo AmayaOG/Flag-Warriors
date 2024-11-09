@@ -2,7 +2,7 @@ const WebSocket = require('ws');
 const MAX_PLAYERS_PER_ROOM = 8;
 const rooms = {};
 const playesChannel = {};
-const COUNTDOWN_SECONDS = 180;
+const COUNTDOWN_SECONDS = 5;
 var sendList = false
   
 // Crear un servidor WebSocket en el puerto 8081
@@ -88,6 +88,8 @@ wss.on('connection', (ws, req) => {
                     name: data.name,
                     path: data.path,
                     team : data.team,
+                    score : data.teamScore,
+                    flag: data.flag,
                     x: data.x,
                     y:data.y
                 };
@@ -131,11 +133,11 @@ wss.on('connection', (ws, req) => {
                 case "flagCaptured":
                     var team=null
                     var name = null;
-                    console.log(sessionId)
+                    
                     rooms["abc123"].players.forEach((player) => {
-                        console.log(player)
 
                         if(player.id == sessionId){
+                            player.flag = true;
                             if(player.team==="A"){
                                 team="B"
                             }else{
@@ -147,19 +149,35 @@ wss.on('connection', (ws, req) => {
                         
                     });
                     
-                            
-                    
                     rooms["abc123"].players.forEach((player) => {
                         
                             playesChannel[player.id].send(JSON.stringify({
                                 type: 'flagCaptured',
                                 name: name,
-                                team:team
+                                team:team,
                             }));
                         
                         
                     });
                     break
+                    case 'actualizarPuntos':
+                        rooms["abc123"].players.find(player => player.id == sessionId).score+=1
+                        const teamScore = rooms["abc123"].players.find(player => player.id == sessionId).score;
+                        console.log(teamScore)
+
+
+
+                        rooms["abc123"].players.forEach((player) => {
+                            
+                            playesChannel[player.id].send(JSON.stringify({
+                                type: 'actualizarPuntos',
+                                team:teamScore,
+                            }));
+                        
+                        
+                        });
+                    break
+
         }
     });
 
@@ -174,30 +192,6 @@ wss.on('connection', (ws, req) => {
 
 );
 
-// function updatePlayerPosition(playerId, velocity) {
-//     const player = rooms["abc123"].players.some(player => player.id === playerId)
 
-//      // Calcular la nueva posición en función de la velocidad y el tiempo transcurrido
-//     player.position.x += velocity * (deltaTime / 1000); // Actualizar la posición
-//         // Enviar la nueva posición a todos los jugadores
-//     broadcastPlayerPosition(player);
-    
-// }
-
-// function broadcastPlayerPosition(player) {
-//     const message = JSON.stringify({
-//         type: 'playerMoved',
-//         id: player.id,
-//         position: player.position // Enviar la nueva posición
-//     });
-
-//     rooms[roomName].players.forEach(player => {
-//         playesChannel[player.id].send(JSON.stringify({
-//             type: 'playerMoved',
-//             id: player.id,
-//             position: player.position
-//         }));
-//     });
-//}
 
 

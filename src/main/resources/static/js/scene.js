@@ -12,6 +12,8 @@ class game extends Phaser.Scene {
         this.sceneWs=null;
         this.col=null;
         this.contador = 0;
+        this.baseA;
+        this.baseB
         this.connectToWebSocket()
         
     }
@@ -86,14 +88,32 @@ class game extends Phaser.Scene {
                             console.log("el oponente se movio en conection")
                             break;
                         
-                        case 'flagCaptured':
-                            actualizarPuntuaciones();
-                            break;
+                       
                     }
                 };
 
 
 
+        
+    }
+    actualizarPuntuaciones(flag){
+        if(this.currentPlayer.flag == true){
+            
+
+            const actualizarPuntos = {
+                type: 'actualizarPuntos',
+                
+            };
+            this.sceneWs.send(JSON.stringify(actualizarPuntos));
+
+            this.currentPlayer.flag = false;
+            flag.disableBody(false, false);
+
+                    
+
+            
+        }
+        
         
     }
 
@@ -138,7 +158,12 @@ class game extends Phaser.Scene {
         this.bandera1 = this.physics.add.sprite(1280, 950, 'banderaAzul').setScale(0.3).setSize(100, 100);
         this.bandera2 = this.physics.add.sprite(180, 120, 'banderaNaranja').setScale(0.3).setSize(100, 100);
 
-        // this.physics.add.collider(this.avatar, fondo);
+        this.baseA = this.physics.add.sprite(200, 180).setSize(80, 20);
+        this.baseB = this.physics.add.sprite(1280, 900).setSize(80, 20);
+
+        // Configurar colisiones con el avatar del jugador
+        // this.physics.add.collider(this.avatar, this.baseA);
+        
 
 
         
@@ -173,10 +198,41 @@ class game extends Phaser.Scene {
 
                         break;
                         case 'flagCaptured':
-                            console.log(data)
-                            this.showGameMessage(`la bandera del equipo ${data.team} fue capturada por ${data.name}`)
+                            if(data.team ==="A"){
+                                this.showGameMessage(`la bandera del equipo Naranja fue capturada por ${data.name}`)
+
+                                this.bandera2.disableBody(true,true)
+                            }else{
+                                this.showGameMessage(`la bandera del equipo Azul fue capturada por ${data.name}`)
+                                this.bandera1.disableBody(true,true)
+                            }
+                            
 
                         break;
+                        case 'actualizarPuntos':
+                            let puntajeElemento = null;
+    
+                            // Selecciona el elemento de puntaje según el equipo
+                            if (data.team === "A") {
+                                puntajeElemento = $('#equipoA');
+                            } else {
+                                puntajeElemento = $('#equipoB');
+                            }
+                            
+                            if (puntajeElemento) {
+                                // Obtener el texto actual del puntaje y extraer el número
+                                let puntajeActual = parseInt(puntajeElemento.text().match(/\d+/)) || 0;
+                        
+                                // Incrementar el puntaje
+                                puntajeActual += 1;
+                        
+                                // Actualizar el texto en el elemento con el nuevo puntaje
+                                const equipoTexto = data.team === "A" ? "Equipo Naranja" : "Equipo Azul";
+                                puntajeElemento.text(`${equipoTexto}: ${puntajeActual}`);
+                                this.showGameMessage(`El ${equipoTexto} hizo un punto`)
+
+                            }    
+                        break
                         
 
                     }
@@ -279,34 +335,9 @@ class game extends Phaser.Scene {
         this.sceneWs.send(JSON.stringify(movementData));
     }
 
-    // collectFlag(player, flag) {
-    //     if (!this.player) return;
-    //     flag.disableBody(true, true);
-    //     console.log("Player ID:", this.playerId);
-  
-    //     if (this.playerId) {
-    //         const flagCaptureMessage = {
-    //             type: 'flagCaptured',
-    //             playerId: this.playerId,
-    //             team: this.currentPlayer.team
-    //         };
-    //         this.ws.send(JSON.stringify(flagCaptureMessage));
-  
-    //         app.captureFlag(this.playerId, function(response) {
-    //             if (response) {
-    //                 console.log("Respuesta del servidor:", response);
-    //             } else {
-    //                 console.error("No se recibió respuesta del servidor.");
-    //             }
-    //         });
-    //     } else {
-    //         console.error("ID del jugador no encontrado.");
-    //     }
-    // }
     collectFlag(player, flag){
-        console.log("hola")
+        this.currentPlayer.flag = true;
         flag.disableBody(true, true);
-        console.log("Player ID:", this.currentPlayer.id);
 
             const flagCaptureMessage = {
                 type: 'flagCaptured',
@@ -314,7 +345,15 @@ class game extends Phaser.Scene {
                 team: this.currentPlayer.team
             };
             this.sceneWs.send(JSON.stringify(flagCaptureMessage));
-      
+            app.captureFlag(this.playerId, function(response) {
+                            if (response) {
+                                console.log("Respuesta del servidor:", response);
+                            } else {
+                                console.error("No se recibió respuesta del servidor.");
+                            }
+                        });
+                            
+                        
 
     }
     renderPlayers() {
@@ -338,16 +377,18 @@ class game extends Phaser.Scene {
                 this.renderPlayer(player);
 
                 this.physics.add.collider(this.avatar, this.col);
+                
 
                 if (this.currentPlayer.path == "../images/playerA.png") {
                     this.physics.add.overlap(this.avatar, this.bandera1, (player, flag) => this.collectFlag(player, flag), null, this);
+                    this.physics.add.overlap(this.avatar, this.baseA,(flag) => this.actualizarPuntuaciones(flag), null, this);
                 } else {
-                    this.physics.add.overlap(this.avatar, this.bandera2, (player, flag) => this.collectFlag(player, flag), null, this);
+                    this.physics.add.overlap(this.avatar, this.bandera2,(player, flag) => this.collectFlag(player, flag), null, this);
+                    this.physics.add.overlap(this.avatar, this.baseB,(flag)=> this.actualizarPuntuaciones(flag), null, this);
                 }
 
             }else{
                 
-                //this.load.spritesheet("opponentPlayer", player.path, { frameWidth: 128, frameHeight: 128 })
                 var oponent = this.physics.add.sprite(player.x,player.y,`opponentPlayer_${player.id}`)
 
                 oponent.setScale(1);

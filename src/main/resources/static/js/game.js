@@ -15,7 +15,7 @@ var avatar;
             default: "arcade", // tipo de física
             arcade: {
                 gravity: { y: 0 }, // la gravedad
-                debug: false // para depurar
+                debug: true // para depurar
             }
         },
         scene: [gameScene]
