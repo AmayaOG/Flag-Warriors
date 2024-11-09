@@ -2,9 +2,9 @@ const WebSocket = require('ws');
 const MAX_PLAYERS_PER_ROOM = 8;
 const rooms = {};
 const playesChannel = {};
-const COUNTDOWN_SECONDS = 5;
+const COUNTDOWN_SECONDS = 180;
 var sendList = false
-
+  
 // Crear un servidor WebSocket en el puerto 8081
 const wss = new WebSocket.Server({ port: 8081 });
 wss.on('connection', (ws, req) => {
@@ -87,7 +87,9 @@ wss.on('connection', (ws, req) => {
                     id: data.playerId,
                     name: data.name,
                     path: data.path,
-                    team : data.team
+                    team : data.team,
+                    x: data.x,
+                    y:data.y
                 };
 
 
@@ -106,6 +108,58 @@ wss.on('connection', (ws, req) => {
                     console.log(`Jugador ${newPlayer.name} añadido a la sala: ${roomName}`);
                 }
                 break;
+
+
+            case 'updatePosition':
+                const playerUpdate = rooms["abc123"].players.find(player => player.id === data.id);
+                playerUpdate.x = data.x;
+                playerUpdate.y=data.y
+                
+                rooms["abc123"].players.forEach((player) => {
+                    if(player.id != sessionId){
+                        playesChannel[player.id].send(JSON.stringify({
+                            type: 'playerMoved',
+                            id:playerUpdate.id,
+                            x:playerUpdate.x,
+                            y: playerUpdate.y,
+                            message:"renderizar"
+                        }));
+                    }
+                    
+                });
+                break;
+                case "flagCaptured":
+                    var team=null
+                    var name = null;
+                    console.log(sessionId)
+                    rooms["abc123"].players.forEach((player) => {
+                        console.log(player)
+
+                        if(player.id == sessionId){
+                            if(player.team==="A"){
+                                team="B"
+                            }else{
+                                team="A"
+        
+                            }
+                            name = player.name
+                        }
+                        
+                    });
+                    
+                            
+                    
+                    rooms["abc123"].players.forEach((player) => {
+                        
+                            playesChannel[player.id].send(JSON.stringify({
+                                type: 'flagCaptured',
+                                name: name,
+                                team:team
+                            }));
+                        
+                        
+                    });
+                    break
         }
     });
 
@@ -116,5 +170,34 @@ wss.on('connection', (ws, req) => {
     
 
     
-});
+}
+
+);
+
+// function updatePlayerPosition(playerId, velocity) {
+//     const player = rooms["abc123"].players.some(player => player.id === playerId)
+
+//      // Calcular la nueva posición en función de la velocidad y el tiempo transcurrido
+//     player.position.x += velocity * (deltaTime / 1000); // Actualizar la posición
+//         // Enviar la nueva posición a todos los jugadores
+//     broadcastPlayerPosition(player);
+    
+// }
+
+// function broadcastPlayerPosition(player) {
+//     const message = JSON.stringify({
+//         type: 'playerMoved',
+//         id: player.id,
+//         position: player.position // Enviar la nueva posición
+//     });
+
+//     rooms[roomName].players.forEach(player => {
+//         playesChannel[player.id].send(JSON.stringify({
+//             type: 'playerMoved',
+//             id: player.id,
+//             position: player.position
+//         }));
+//     });
+//}
+
 

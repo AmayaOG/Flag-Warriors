@@ -1,4 +1,5 @@
 
+var avatar;
 
     const gameScene = new game();
 
@@ -14,13 +15,14 @@
             default: "arcade", // tipo de física
             arcade: {
                 gravity: { y: 0 }, // la gravedad
-                debug: true // para depurar
+                debug: false // para depurar
             }
         },
         scene: [gameScene]
     }
-
     var juego = new Phaser.Game(config);
+
+    
 
 
 
