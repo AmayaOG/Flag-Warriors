@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  node-app:
+    image: juanito152612/flag_warriors_mvp:wesocket # Reemplaza con el tag específico si tienes varios
+    ports:
+      - "8081:8081"
+    environment:
+      - NODE_ENV=production
+    restart: always
+
+  springboot-app:
+    image: juanito152612/flag_warriors_mvp:spring # Reemplaza con el tag específico si tienes varios
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+    restart: always

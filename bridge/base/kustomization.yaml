@@ -1,0 +1,13 @@
+#! kustomization.yaml
+# Generated code, do not edit
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+    - 0-proyecto-namespace.yaml
+    - default-network-policy.yaml
+    - node-app-deployment.yaml
+    - node-app-expose.yaml
+    - node-app-service.yaml
+    - springboot-app-deployment.yaml
+    - springboot-app-expose.yaml
+    - springboot-app-service.yaml

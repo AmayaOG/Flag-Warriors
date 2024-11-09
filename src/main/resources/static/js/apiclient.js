@@ -1,5 +1,5 @@
 var apiclient = (function () {
-    var apiUrl = "http://localhost:8080/api";
+    const apiUrl = "https://flagwarriors-d2exgfbgdne2acfk.centralus-01.azurewebsites.net/api";
 
     return {
 

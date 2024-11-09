@@ -1,0 +1,36 @@
+#! node-app-deployment.yaml
+# Generated code, do not edit
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+    name: node-app
+    namespace: proyecto
+    labels:
+        com.docker.compose.project: proyecto
+        com.docker.compose.service: node-app
+spec:
+    replicas: 1
+    selector:
+        matchLabels:
+            com.docker.compose.project: proyecto
+            com.docker.compose.service: node-app
+    strategy:
+        type: Recreate
+    template:
+        metadata:
+            labels:
+                com.docker.compose.project: proyecto
+                com.docker.compose.service: node-app
+                com.docker.compose.network.default: "true"
+        spec:
+            restartPolicy: Always
+            containers:
+                - name: node-app
+                  image: proyecto-node-app
+                  imagePullPolicy: IfNotPresent
+                  env:
+                    - name: NODE_ENV
+                      value: "production"
+                  ports:
+                    - name: node-app-8081
+                      containerPort: 8081

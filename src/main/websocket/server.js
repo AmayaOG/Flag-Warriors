@@ -9,7 +9,7 @@ var sendList = false
 const wss = new WebSocket.Server({ port: 8081 });
 wss.on('connection', (ws, req) => {
     // Extraer el sessionId desde la URL
-    const url = new URL(req.url || '', `http://${req.headers.host}`);
+    const url = new URL(req.url || '', `https://${req.headers.host}`);
     const sessionId = url.searchParams.get('sessionId') || '';
 
     console.log(`se conecto el jugador: ${sessionId}`);

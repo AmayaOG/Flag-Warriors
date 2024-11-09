@@ -1,0 +1,18 @@
+#! springboot-app-expose.yaml
+# Generated code, do not edit
+apiVersion: v1
+kind: Service
+metadata:
+    name: springboot-app
+    namespace: proyecto
+    labels:
+        com.docker.compose.project: proyecto
+        com.docker.compose.service: springboot-app
+spec:
+    selector:
+        com.docker.compose.project: proyecto
+        com.docker.compose.service: springboot-app
+    ports:
+        - name: springboot-8080
+          port: 8080
+          targetPort: springboot-8080

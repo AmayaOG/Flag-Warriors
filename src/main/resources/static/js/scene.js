@@ -68,7 +68,7 @@ class game extends Phaser.Scene {
         const id = params.get('id');
         this.playerId = id;
   
-        this.sceneWs =new WebSocket(`ws://localhost:8081?sessionId=${id}`)
+        this.sceneWs =new WebSocket(`wss://flagwarriors-d2exgfbgdne2acfk.centralus-01.azurewebsites.net:8081?sessionId=${id}`)
 
         this.sceneWs.onopen = async () => {
             

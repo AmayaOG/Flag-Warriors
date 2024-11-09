@@ -1,0 +1,18 @@
+#! node-app-expose.yaml
+# Generated code, do not edit
+apiVersion: v1
+kind: Service
+metadata:
+    name: node-app
+    namespace: proyecto
+    labels:
+        com.docker.compose.project: proyecto
+        com.docker.compose.service: node-app
+spec:
+    selector:
+        com.docker.compose.project: proyecto
+        com.docker.compose.service: node-app
+    ports:
+        - name: node-app-8081
+          port: 8081
+          targetPort: node-app-8081

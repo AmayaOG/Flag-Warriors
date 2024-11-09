@@ -1,0 +1,36 @@
+#! springboot-app-deployment.yaml
+# Generated code, do not edit
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+    name: springboot-app
+    namespace: proyecto
+    labels:
+        com.docker.compose.project: proyecto
+        com.docker.compose.service: springboot-app
+spec:
+    replicas: 1
+    selector:
+        matchLabels:
+            com.docker.compose.project: proyecto
+            com.docker.compose.service: springboot-app
+    strategy:
+        type: Recreate
+    template:
+        metadata:
+            labels:
+                com.docker.compose.project: proyecto
+                com.docker.compose.service: springboot-app
+                com.docker.compose.network.default: "true"
+        spec:
+            restartPolicy: Always
+            containers:
+                - name: springboot-app
+                  image: proyecto-springboot-app
+                  imagePullPolicy: IfNotPresent
+                  env:
+                    - name: SPRING_PROFILES_ACTIVE
+                      value: "prod"
+                  ports:
+                    - name: springboot-8080
+                      containerPort: 8080
